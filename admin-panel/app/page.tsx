@@ -292,7 +292,7 @@ function ElectionManagement({ onClose, onDeleteElection, onDeleteCandidate, refr
   }, [refreshKey]);
 
   useEffect(() => {
-    if (allElections.length > 0) {
+    if ((allElections || []).length > 0) {
       allElections.forEach(e => {
         api<any>(`/results/${e.id}`).then(res => {
           if (res.ranking && res.ranking.length > 0) {
@@ -551,7 +551,7 @@ function CreateElectionType({ onSave, onDelete, refreshKey }: { onSave: (name: s
       <section>
         <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-500 mb-10">Categorías Disponibles</h3>
         <div className="grid gap-3">
-          {list.map(t => (
+          {(list || []).map(t => (
             <div key={t.id} className="flex justify-between items-center p-6 bg-white border border-slate-100 text-[11px] font-black uppercase tracking-widest">
               <span className="text-black">{t.name}</span>
               <div className="flex items-center gap-4">
@@ -602,7 +602,7 @@ function CreateRegion({ onSave, onDelete, refreshKey }: { onSave: (d: any) => vo
       <section>
         <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-500 mb-10">Ámbitos Operativos</h3>
         <div className="grid gap-3 text-[10px] font-black uppercase tracking-widest">
-          {list.map(r => (
+          {(list || []).map(r => (
             <div key={r.id} className="flex justify-between items-center p-6 bg-white border border-slate-100">
               <div className="flex gap-6 items-center">
                 <span className="text-emerald-600 bg-emerald-50 px-2 py-1 text-[8px]">{r.level}</span>
@@ -820,7 +820,7 @@ function CreateCandidate({ onSave, isEdit, initialData }: { onSave: (d: any) => 
               <label className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500">Vincular a Proceso Electoral</label>
               <select className="w-full border border-slate-100 bg-slate-50 px-6 py-5 text-[11px] font-bold uppercase tracking-widest outline-none focus:border-emerald-600 focus:bg-white transition-all appearance-none" onChange={e => setD({ ...d, election_id: e.target.value })} value={d.election_id || ""}>
                 <option value="">Seleccione Proceso</option>
-                {elections.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
+                {(elections || []).map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
               </select>
             </div>
           )}
@@ -863,7 +863,7 @@ function CategoryElectionManager({ categoryId, categoryLabel, filterFn, refreshK
     <div className="space-y-12">
       <div className="flex justify-between items-center">
         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500">
-          {filtered.length} proceso(s) en {categoryLabel}
+          {(filtered || []).length} proceso(s) en {categoryLabel}
         </p>
         <button
           className="px-8 py-4 bg-black text-white text-[10px] font-black uppercase tracking-[0.3em] hover:bg-emerald-600 transition-all"
@@ -919,7 +919,7 @@ function CategoryElectionManager({ categoryId, categoryLabel, filterFn, refreshK
           </div>
         ))}
 
-        {filtered.length === 0 && (
+        {(filtered || []).length === 0 && (
           <div className="text-center py-20 text-slate-400 text-[11px] font-bold uppercase tracking-widest italic">
             No hay procesos registrados en {categoryLabel}. Cree uno nuevo con el botón de arriba.
           </div>
