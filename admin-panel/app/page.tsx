@@ -398,7 +398,10 @@ function ElectionManagement({ onClose, onDeleteElection, onDeleteCandidate, refr
                 {e.slug && (
                   <button 
                     className="px-6 py-3 bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-[0.2em] hover:bg-emerald-600 hover:text-white transition-all border border-emerald-100"
-                    onClick={() => { navigator.clipboard.writeText(`${window.location.origin.replace(':3001', ':3000')}/vote/${e.slug}`); }}
+                    onClick={() => { 
+                      const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || window.location.origin.replace('encuestaadmin', 'encuestasperu');
+                      navigator.clipboard.writeText(`${frontendUrl}/vote/${e.slug}`); 
+                    }}
                   >
                     📋 Copiar Link Único
                   </button>
@@ -897,7 +900,7 @@ function CategoryElectionManager({ categoryId, categoryLabel, filterFn, refreshK
                   <div className="flex items-center gap-3 bg-slate-50 p-4 border border-slate-100 mt-4">
                     <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">LINK ÚNICO:</span>
                     <code className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-3 py-1 border border-emerald-100 flex-grow truncate">
-                      {typeof window !== 'undefined' ? window.location.origin.replace(':3001', ':3000') : 'http://localhost:3000'}/vote/{e.slug}
+                      {(process.env.NEXT_PUBLIC_FRONTEND_URL || (typeof window !== 'undefined' ? window.location.origin.replace('encuestaadmin', 'encuestasperu') : 'http://localhost:3000'))}/vote/{e.slug}
                     </code>
                     <button 
                       className={`px-4 py-2 text-[9px] font-black uppercase tracking-widest transition-all ${copied === e.slug ? 'bg-emerald-600 text-white' : 'bg-black text-white hover:bg-emerald-600'}`}
