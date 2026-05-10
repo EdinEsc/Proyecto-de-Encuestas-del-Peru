@@ -1,0 +1,28 @@
+# Dependencias
+node_modules/
+vendor/
+.next/
+dist/
+out/
+build/
+
+# Secretos y Configuración
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Docker
+.docker/
+postgres_data/
+
+# Archivos de Sistema
+.DS_Store
+Thumbs.db
+*.log
+
+# Otros
+uploads/
+.idea/
+.vscode/

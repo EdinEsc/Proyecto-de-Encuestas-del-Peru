@@ -1,0 +1,3 @@
+ALTER TABLE candidates ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE candidates ADD COLUMN IF NOT EXISTS button_text VARCHAR(100);
+ALTER TABLE candidates ADD COLUMN IF NOT EXISTS button_url TEXT;
