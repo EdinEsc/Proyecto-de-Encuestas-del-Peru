@@ -309,7 +309,7 @@ function ElectionManagement({ onClose, onDeleteElection, onDeleteCandidate, refr
     });
   };
 
-  const filteredElections = allElections.filter(e => {
+  const filteredElections = (allElections || []).filter(e => {
     const title = e.title.toLowerCase();
     const type = (e.election_type || "").toLowerCase();
     switch (category) {
@@ -369,7 +369,7 @@ function ElectionManagement({ onClose, onDeleteElection, onDeleteCandidate, refr
       </div>
 
       <div className="grid gap-8">
-        {filteredElections.map(e => (
+        {(filteredElections || []).map(e => (
           <div key={e.id} className="bg-white p-10 transition-all border border-slate-100 group">
             <div className="flex justify-between items-start">
               <div className="space-y-6">
@@ -850,7 +850,7 @@ function CategoryElectionManager({ categoryId, categoryLabel, filterFn, refreshK
     api<any[]>("/admin/elections", { headers: authHeaders() }).then(setAllElections).catch(() => {});
   }, [refreshKey]);
 
-  const filtered = allElections.filter(filterFn);
+  const filtered = (allElections || []).filter(filterFn);
 
   const copyLink = (slug: string) => {
     const frontendOrigin = typeof window !== 'undefined' ? window.location.origin.replace(':3001', ':3000') : 'http://localhost:3000';
