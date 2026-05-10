@@ -7,6 +7,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"strings"
 	"voting-platform/backend/internal/infrastructure/auth"
 	"voting-platform/backend/internal/infrastructure/captcha"
 	"voting-platform/backend/internal/infrastructure/postgres"
@@ -46,13 +47,33 @@ func main() {
 		Comments: commentRepo, Catalog: catalogRepo, VoteUC: voteUC, CommentUC: commentUC, AdminUC: adminUC,
 	}
 
+	frontendOrigin := os.Getenv("FRONTEND_ORIGIN")
+	allowedOrigins := []string{"http://localhost:3000", "http://localhost:3001"}
+	if frontendOrigin != "" {
+		if frontendOrigin == "*" {
+			// Gin-CORS doesn't allow "*" with AllowCredentials: true, so we handle it by not setting specific origins or using AllowAllOrigins
+			// But for security, it's better to split actual origins
+			allowedOrigins = []string{"*"}
+		} else {
+			allowedOrigins = strings.Split(frontendOrigin, ",")
+		}
+	}
+
 	r := gin.Default()
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:3001"},
+	
+	corsConfig := cors.Config{
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
-	}))
+	}
+
+	if frontendOrigin == "*" {
+		corsConfig.AllowAllOrigins = true
+	} else {
+		corsConfig.AllowOrigins = allowedOrigins
+	}
+
+	r.Use(cors.New(corsConfig))
 
 	httpapi.RegisterRoutes(r, handler, jwtSvc)
 	log.Fatal(r.Run(":" + port))
