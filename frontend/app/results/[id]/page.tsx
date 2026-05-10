@@ -85,7 +85,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
         )}
 
         <div className="grid gap-16 max-w-4xl">
-          {results?.ranking.map((r, i) => {
+          {(results?.ranking || []).map((r, i) => {
             const percentage = totalVotes > 0 ? (r.votes / totalVotes) * 100 : 0;
             return (
               <div key={r.candidate_id} className="group">
@@ -115,7 +115,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
           })}
         </div>
 
-        {results?.ranking.length === 0 && (
+        {(results?.ranking || []).length === 0 && (
           <div className="py-20 text-slate-400 italic text-[11px] font-bold uppercase tracking-widest text-center">
             Aún no se han registrado participaciones en este proceso.
           </div>
