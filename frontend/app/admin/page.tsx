@@ -52,33 +52,33 @@ export default function AdminPage() {
 
   if (!token) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-slate-50 px-4">
-        <div className="w-full max-w-md p-8 bg-white border border-slate-200 rounded-xl shadow-sm">
+      <div className="rounded-xl min-h-[calc(100vh-4rem)] flex items-center justify-center bg-ink-50 px-4">
+        <div className="w-full max-w-md p-8 bg-white border border-ink-200 rounded-xl shadow-sm">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-slate-900">Panel de Control</h1>
-            <p className="text-slate-500 mt-2">Ingresa tus credenciales de administrador</p>
+            <h1 className="text-2xl font-bold text-ink-900">Panel de Control</h1>
+            <p className="text-ink-500 mt-2">Ingresa tus credenciales de administrador</p>
           </div>
           
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-1 block">Correo Electrónico</label>
+              <label className="text-sm font-medium text-ink-700 mb-1 block">Correo Electrónico</label>
               <input 
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-black focus:ring-1 focus:ring-black outline-none transition-all" 
+                className="w-full rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-sm focus:border-black focus:ring-1 focus:ring-black outline-none transition-all" 
                 placeholder="admin@votaciones.local" 
                 onChange={e => setEmail(e.target.value)} 
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-1 block">Contraseña</label>
+              <label className="text-sm font-medium text-ink-700 mb-1 block">Contraseña</label>
               <input 
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-black focus:ring-1 focus:ring-black outline-none transition-all" 
+                className="w-full rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-sm focus:border-black focus:ring-1 focus:ring-black outline-none transition-all" 
                 type="password" 
                 placeholder="••••••••" 
                 onChange={e => setPassword(e.target.value)} 
               />
             </div>
             <button 
-              className="w-full bg-black text-white rounded-xl px-4 py-3 text-sm font-bold hover:bg-slate-800 transition-colors mt-6 disabled:opacity-50" 
+              className="w-full bg-black text-white rounded-xl px-4 py-3 text-sm font-bold hover:bg-ink-800 transition-colors mt-6 disabled:opacity-50" 
               onClick={login}
               disabled={loading}
             >
@@ -97,15 +97,15 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12">
+    <div className="rounded-xl min-h-screen bg-ink-50 py-12">
       <main className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Administración Central</h1>
-            <p className="text-slate-500 mt-1">Gestiona los procesos electorales de la plataforma.</p>
+            <h1 className="text-3xl font-semibold tracking-tight text-ink-900">Administración Central</h1>
+            <p className="text-ink-500 mt-1">Gestiona los procesos electorales de la plataforma.</p>
           </div>
           <button 
-            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-red-600 shadow-sm transition-all hover:bg-red-50" 
+            className="inline-flex items-center justify-center rounded-xl border border-ink-200 bg-white px-4 py-2 text-sm font-medium text-red-600 shadow-sm transition-all hover:bg-red-50" 
             onClick={() => { localStorage.removeItem("admin_token"); setToken(""); }}
           >
             Cerrar Sesión
@@ -120,9 +120,9 @@ export default function AdminPage() {
 
         <div className="grid lg:grid-cols-4 gap-8">
           <aside className="lg:col-span-1 space-y-6">
-            <div className="p-6 bg-slate-900 text-white rounded-xl">
+            <div className="p-6 bg-ink-900 text-white rounded-xl">
               <h3 className="font-bold mb-4">Guía Rápida</h3>
-              <ul className="space-y-3 text-sm text-slate-300">
+              <ul className="space-y-3 text-sm text-ink-300">
                 <li className="flex gap-2"><span className="font-bold">1.</span> Define el Tipo de Elección.</li>
                 <li className="flex gap-2"><span className="font-bold">2.</span> Crea la Región o ámbito.</li>
                 <li className="flex gap-2"><span className="font-bold">3.</span> Configura la Elección.</li>
@@ -140,7 +140,7 @@ export default function AdminPage() {
             </div>
             
             <div className="mt-12">
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">Gestión de Procesos</h2>
+              <h2 className="text-2xl font-bold text-ink-900 mb-6">Gestión de Procesos</h2>
               <ElectionManagement 
                 refreshKey={refreshTrigger}
                 onClose={(id) => api(`/admin/election/${id}/close`, { method: "PUT", headers: authHeaders() }).then(() => { setMsg("Elección cerrada"); setRefreshTrigger(p => p+1); })} 
@@ -171,20 +171,20 @@ function ElectionManagement({ onClose, onDeleteCandidate, refreshKey }: { onClos
   return (
     <div className="space-y-4">
       {elections.map(e => (
-        <div key={e.id} className="p-6 bg-white border border-slate-200 rounded-xl">
+        <div key={e.id} className="p-6 bg-white border border-ink-200 rounded-xl">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h3 className="font-bold text-lg text-slate-900">{e.title}</h3>
-              <p className="text-xs text-slate-500">ID: {e.id}</p>
+              <h3 className="font-bold text-lg text-ink-900">{e.title}</h3>
+              <p className="text-xs text-ink-500">ID: {e.id}</p>
               <p className="text-xs mt-1">
-                <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase ${e.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${e.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                   {e.is_active ? 'Activa' : 'Cerrada'}
                 </span>
               </p>
             </div>
             <div className="flex gap-2">
               <button 
-                className="px-3 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-200"
+                className="px-3 py-1 bg-ink-100 text-ink-700 rounded-lg text-xs font-semibold hover:bg-ink-200"
                 onClick={() => loadCandidates(e.id)}
               >
                 Ver Candidatos
@@ -203,7 +203,7 @@ function ElectionManagement({ onClose, onDeleteCandidate, refreshKey }: { onClos
           {candidatesMap[e.id] && (
             <div className="mt-4 border-t pt-4 space-y-2">
               {candidatesMap[e.id].map((c: any) => (
-                <div key={c.id} className="flex justify-between items-center bg-slate-50 p-2 rounded-lg text-sm">
+                <div key={c.id} className="flex justify-between items-center bg-ink-50 p-2 rounded-lg text-sm">
                   <div className="flex items-center gap-3">
                     {c.image_url && (
                       <img src={c.image_url.startsWith('http') ? c.image_url : `http://localhost:8080${c.image_url}`} className="w-8 h-8 object-cover rounded" alt="" />
@@ -219,14 +219,14 @@ function ElectionManagement({ onClose, onDeleteCandidate, refreshKey }: { onClos
                 </div>
               ))}
               {candidatesMap[e.id].length === 0 && (
-                <p className="text-sm text-slate-400 italic">Sin candidatos registrados.</p>
+                <p className="text-sm text-ink-400 italic">Sin candidatos registrados.</p>
               )}
             </div>
           )}
         </div>
       ))}
       {elections.length === 0 && (
-        <p className="text-slate-400 text-sm italic py-8 text-center">No hay procesos electorales registrados.</p>
+        <p className="text-ink-400 text-sm italic py-8 text-center">No hay procesos electorales registrados.</p>
       )}
     </div>
   );
@@ -242,24 +242,24 @@ function CreateElectionType({ onSave, refreshKey }: { onSave: (name: string) => 
   }, [refreshKey]);
 
   return (
-    <section className="p-6 bg-white border border-slate-200 rounded-xl flex flex-col">
+    <section className="p-6 bg-white border border-ink-200 rounded-xl flex flex-col">
       <h2 className="text-lg font-bold mb-4">Tipo de Elección</h2>
       <div className="space-y-4 flex-grow">
         <input 
-          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
           placeholder="Ej: Presidencial, Regional" 
           value={name}
           onChange={e => setName(e.target.value)} 
         />
-        <button className="w-full bg-black text-white rounded-lg px-4 py-2 text-xs font-bold hover:bg-slate-800 transition-colors" onClick={() => { onSave(name); setName(""); }}>Crear Tipo</button>
+        <button className="w-full bg-black text-white rounded-lg px-4 py-2 text-xs font-bold hover:bg-ink-800 transition-colors" onClick={() => { onSave(name); setName(""); }}>Crear Tipo</button>
       </div>
       {list.length > 0 && (
         <div className="mt-4 pt-4 border-t space-y-1">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Tipos existentes:</p>
+          <p className="text-xs font-bold tracking-wide text-ink-400 mb-2">Tipos existentes:</p>
           {list.map(t => (
-            <div key={t.id} className="text-xs flex justify-between text-slate-600 bg-slate-50 p-2 rounded">
+            <div key={t.id} className="text-xs flex justify-between text-ink-600 bg-ink-50 p-2 rounded">
               <span className="font-medium">{t.name}</span>
-              <span className="text-slate-300 text-[10px]">{t.id.substring(0,8)}...</span>
+              <span className="text-ink-300 text-xs">{t.id.substring(0,8)}...</span>
             </div>
           ))}
         </div>
@@ -277,16 +277,16 @@ function CreateRegion({ onSave, refreshKey }: { onSave: (d: any) => void, refres
   }, [refreshKey]);
 
   return (
-    <section className="p-6 bg-white border border-slate-200 rounded-xl flex flex-col">
+    <section className="p-6 bg-white border border-ink-200 rounded-xl flex flex-col">
       <h2 className="text-lg font-bold mb-4">Región / Ámbito</h2>
       <div className="space-y-4 flex-grow">
         <input 
-          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
           placeholder="Nombre (Ej: Lima, Cusco)" 
           onChange={e => setD({ ...d, name: e.target.value })} 
         />
         <select 
-          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
           onChange={e => setD({ ...d, level: e.target.value })}
         >
           <option value="country">País</option>
@@ -295,13 +295,13 @@ function CreateRegion({ onSave, refreshKey }: { onSave: (d: any) => void, refres
           <option value="district">Distrito</option>
         </select>
         <select 
-          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
           onChange={e => setD({ ...d, parent_id: e.target.value || null })}
         >
           <option value="">Región Superior (Opcional)</option>
           {regions.map(r => <option key={r.id} value={r.id}>{r.name} ({r.level})</option>)}
         </select>
-        <button className="w-full bg-black text-white rounded-lg px-4 py-2 text-xs font-bold hover:bg-slate-800 transition-colors" onClick={() => onSave(d)}>Crear Región</button>
+        <button className="w-full bg-black text-white rounded-lg px-4 py-2 text-xs font-bold hover:bg-ink-800 transition-colors" onClick={() => onSave(d)}>Crear Región</button>
       </div>
     </section>
   );
@@ -318,17 +318,17 @@ function CreateElection({ onSave, refreshKey }: { onSave: (d: any) => void, refr
   }, [refreshKey]);
 
   return (
-    <section className="p-6 bg-white border border-slate-200 rounded-xl flex flex-col">
+    <section className="p-6 bg-white border border-ink-200 rounded-xl flex flex-col">
       <h2 className="text-lg font-bold mb-4">Nueva Elección</h2>
       <div className="space-y-4 flex-grow">
         <input 
-          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
           placeholder="Título de la Elección" 
           onChange={e => setD({ ...d, title: e.target.value })} 
         />
         <div className="grid grid-cols-2 gap-2">
           <select 
-            className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+            className="rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
             onChange={e => setD({ ...d, election_type_id: e.target.value })}
             value={d.election_type_id || ""}
           >
@@ -336,7 +336,7 @@ function CreateElection({ onSave, refreshKey }: { onSave: (d: any) => void, refr
             {types.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
           <select 
-            className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+            className="rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
             onChange={e => setD({ ...d, region_id: e.target.value || null })}
             value={d.region_id || ""}
           >
@@ -345,14 +345,14 @@ function CreateElection({ onSave, refreshKey }: { onSave: (d: any) => void, refr
           </select>
         </div>
         <div>
-          <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-1">Fecha de Cierre</label>
+          <label className="text-xs font-bold tracking-wide text-ink-400 block mb-1">Fecha de Cierre</label>
           <input 
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+            className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
             type="datetime-local" 
             onChange={e => setD({ ...d, end_date: new Date(e.target.value).toISOString() })} 
           />
         </div>
-        <button className="w-full bg-black text-white rounded-lg px-4 py-2 text-xs font-bold hover:bg-slate-800 transition-colors" onClick={() => onSave(d)}>Crear Elección</button>
+        <button className="w-full bg-black text-white rounded-lg px-4 py-2 text-xs font-bold hover:bg-ink-800 transition-colors" onClick={() => onSave(d)}>Crear Elección</button>
       </div>
     </section>
   );
@@ -368,28 +368,28 @@ function CreateCandidate({ onSave, refreshKey }: { onSave: (d: any) => void, ref
   }, [refreshKey]);
 
   return (
-    <section className="p-6 bg-white border border-slate-200 rounded-xl flex flex-col">
+    <section className="p-6 bg-white border border-ink-200 rounded-xl flex flex-col">
       <h2 className="text-lg font-bold mb-4">Candidato</h2>
       <div className="space-y-4 flex-grow">
         <input 
-          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
           placeholder="Nombre Completo" 
           onChange={e => setD({ ...d, name: e.target.value })} 
         />
         <input 
-          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
           placeholder="URL de la Foto" 
           onChange={e => setD({ ...d, image_url: e.target.value })} 
         />
         <select 
-          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
           onChange={e => setD({ ...d, election_id: e.target.value })}
           value={d.election_id || ""}
         >
           <option value="">Seleccione Elección</option>
           {elections.map(e => <option key={e.id} value={e.id}>{e.title}{!e.is_active ? ' (Cerrada)' : ''}</option>)}
         </select>
-        <button className="w-full bg-black text-white rounded-lg px-4 py-2 text-xs font-bold hover:bg-slate-800 transition-colors" onClick={() => onSave(d)}>Agregar Candidato</button>
+        <button className="w-full bg-black text-white rounded-lg px-4 py-2 text-xs font-bold hover:bg-ink-800 transition-colors" onClick={() => onSave(d)}>Agregar Candidato</button>
       </div>
     </section>
   );

@@ -39,33 +39,33 @@ export default function CandidateComments({ candidateId }: { candidateId: string
     <div className="space-y-6">
       <div className="flex gap-1">
         <input 
-          className="flex-grow border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 py-3 text-xs text-black dark:text-white outline-none focus:bg-white dark:focus:bg-slate-700 focus:border-black dark:focus:border-emerald-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500" 
+          className="rounded-xl flex-grow border border-ink-100 dark:border-ink-700 bg-ink-50 dark:bg-ink-800 px-4 py-3 text-xs text-black dark:text-white outline-none focus:bg-white dark:focus:bg-ink-700 focus:border-black dark:focus:border-brand-500 transition-all placeholder:text-ink-400 dark:placeholder:text-ink-500" 
           placeholder="Escriba su opinión..." 
           value={newComment}
           onChange={e => setNewComment(e.target.value)}
           disabled={loading}
         />
         <button 
-          className="bg-black dark:bg-emerald-600 text-white px-6 py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-slate-800 dark:hover:bg-emerald-500 transition-colors disabled:opacity-50" 
+          className="rounded-xl bg-black dark:bg-brand-600 text-white px-6 py-3 text-xs font-bold tracking-wide hover:bg-ink-800 dark:hover:bg-brand-500 transition-colors disabled:opacity-50" 
           onClick={postComment}
           disabled={loading}
         >
           {loading ? "..." : "Enviar"}
         </button>
       </div>
-      {msg && <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">{msg}</p>}
+      {msg && <p className="text-xs font-bold tracking-wide text-ink-400 dark:text-ink-500">{msg}</p>}
       
       <div className="space-y-6">
         {comments?.map(c => (
-          <div key={c.id} className="border-l-2 border-slate-100 dark:border-slate-700 pl-4 py-1">
-            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{c.content}</p>
-            <div className="mt-2 flex gap-4 text-[9px] font-bold uppercase tracking-widest text-slate-300 dark:text-slate-600">
+          <div key={c.id} className="border-l-2 border-ink-100 dark:border-ink-700 pl-4 py-1">
+            <p className="text-sm text-ink-600 dark:text-ink-300 leading-relaxed">{c.content}</p>
+            <div className="mt-2 flex gap-4 text-xs font-bold tracking-wide text-ink-300 dark:text-ink-600">
               <span>IP {c.ip_address}</span>
               <span>{new Date(c.created_at).toLocaleDateString()}</span>
             </div>
           </div>
         ))}
-        {comments.length === 0 && <p className="text-[10px] uppercase tracking-widest text-slate-300 dark:text-slate-600 py-2">Sin opiniones registradas.</p>}
+        {comments.length === 0 && <p className="text-xs tracking-wide text-ink-300 dark:text-ink-600 py-2">Sin opiniones registradas.</p>}
       </div>
     </div>
   );

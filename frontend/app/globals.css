@@ -3,7 +3,82 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    @apply transition-colors duration-300;
+  :root {
+    --brand: #2563eb;
+    --accent: #00c9a7;
+    --ink: #0b132b;
+  }
+
+  body {
+    @apply bg-ink-50 text-ink-900 dark:bg-ink-950 dark:text-ink-100;
+    font-feature-settings: "ss01", "cv01";
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-semibold tracking-tight text-ink-900 dark:text-white;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    @apply bg-brand-600 text-white;
+  }
+
+  /* Foco visible y consistente en toda la app */
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand-600 ring-offset-2 ring-offset-white dark:ring-offset-ink-950;
+  }
+}
+
+@layer components {
+  /* Etiqueta pequeña de sección: el único lugar donde usamos mayúsculas */
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-400 dark:text-ink-300;
+  }
+
+  .card {
+    @apply rounded-2xl border border-ink-100 bg-white shadow-card transition-shadow duration-200
+           dark:border-white/10 dark:bg-ink-900;
+  }
+
+  .card-interactive {
+    @apply card hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-card-hover
+           dark:hover:border-brand-500/40 transition-all duration-200;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold
+           transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-primary {
+    @apply btn bg-brand-600 text-white hover:bg-brand-700;
+  }
+
+  .btn-ghost {
+    @apply btn border border-ink-200 bg-white text-ink-700 hover:border-ink-300 hover:bg-ink-50
+           dark:border-white/10 dark:bg-transparent dark:text-ink-100 dark:hover:bg-white/5;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-ink-200 bg-white px-4 py-3 text-sm text-ink-900
+           placeholder:text-ink-400 transition-colors
+           focus:border-brand-600 focus:outline-none
+           dark:border-white/10 dark:bg-ink-900 dark:text-white dark:placeholder:text-ink-400;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold;
+  }
+
+  .badge-live {
+    @apply badge bg-accent-50 text-accent-700 dark:bg-accent-500/10 dark:text-accent-300;
+  }
+
+  .badge-closed {
+    @apply badge bg-ink-100 text-ink-500 dark:bg-white/5 dark:text-ink-300;
   }
 }

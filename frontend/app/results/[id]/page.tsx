@@ -31,12 +31,12 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   const totalVotes = results?.total_votes || 0;
 
   return (
-    <div className={`min-h-screen bg-white dark:bg-slate-950 ${isMinimal ? "font-['Outfit',_sans-serif]" : ""}`}>
+    <div className={`min-h-screen bg-white dark:bg-ink-950 ${isMinimal ? "font-['Outfit',_sans-serif]" : ""}`}>
       {isMinimal && (
-        <header className="w-full bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 mb-12">
+        <header className="w-full bg-white dark:bg-ink-900 border-b border-ink-100 dark:border-ink-800 mb-12">
           <div className="flex flex-col items-center text-center py-6">
-            <div className="h-12 w-12 bg-emerald-500 text-white flex items-center justify-center mb-2 text-xl font-black">EP</div>
-            <h2 className="text-xl font-black tracking-tighter uppercase text-black dark:text-white">Encuestas Perú</h2>
+            <div className="rounded-lg h-12 w-12 bg-brand-500 text-white flex items-center justify-center mb-2 text-xl font-semibold">EP</div>
+            <h2 className="text-xl font-semibold tracking-tight text-black dark:text-white">Encuestas Perú</h2>
           </div>
         </header>
       )}
@@ -44,41 +44,41 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
       <div className="max-w-6xl mx-auto px-6 py-20">
         <div className="mb-20">
           {!isMinimal ? (
-            <Link href={`/election/${id}`} className="text-[10px] font-bold uppercase tracking-widest text-slate-600 dark:text-slate-400 hover:text-black dark:hover:text-white mb-12 inline-block transition-colors">
+            <Link href={`/election/${id}`} className="text-xs font-bold tracking-wide text-ink-600 dark:text-ink-400 hover:text-black dark:hover:text-white mb-12 inline-block transition-colors">
               ← Volver a la votación
             </Link>
           ) : (
-            <button onClick={() => window.history.back()} className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-600 mb-12 hover:text-black transition-colors">
+            <button onClick={() => window.history.back()} className="text-xs font-semibold tracking-[0.12em] text-brand-600 mb-12 hover:text-black transition-colors">
               ← REGRESAR A VOTACIÓN
             </button>
           )}
 
           <div className="flex items-center gap-6 mb-8">
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-emerald-600 text-white px-3 py-1">
+            <span className="rounded-xl text-xs font-semibold tracking-[0.08em] bg-brand-600 text-white px-3 py-1">
               {election?.election_type || "Proceso Oficial"}
             </span>
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-800 dark:text-slate-200 border-l border-slate-300 dark:border-slate-600 pl-6">
+            <span className="text-xs font-semibold tracking-[0.1em] text-ink-800 dark:text-ink-200 border-l border-ink-300 dark:border-ink-600 pl-6">
               {!election ? 'Cargando...' : election.is_active ? 'ESCRUTINIO EN TIEMPO REAL' : 'ESCRUTINIO FINALIZADO'}
             </span>
           </div>
 
-          <h1 className="text-6xl font-black tracking-tighter mb-4 text-black dark:text-white uppercase leading-none">
+          <h1 className="text-6xl font-semibold tracking-tight mb-4 text-black dark:text-white leading-none">
             {election?.title || "Cargando resultados..."}
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 uppercase tracking-[0.4em] text-[10px] font-black">
+          <p className="text-ink-500 dark:text-ink-400 tracking-[0.12em] text-xs font-semibold">
             Actualización automática cada 5 segundos
           </p>
         </div>
 
         {election?.banner_url && !isMinimal && (
-          <div className="w-full h-[450px] bg-slate-50 dark:bg-slate-800 mb-20 overflow-hidden border border-slate-100 dark:border-slate-700 shadow-xl">
-            <img src={getImageUrl(election.banner_url)} alt="Portada" className="w-full h-full object-cover" />
+          <div className="rounded-xl w-full h-[450px] bg-ink-50 dark:bg-ink-800 mb-20 overflow-hidden border border-ink-100 dark:border-ink-700 shadow-xl">
+            <img src={getImageUrl(election.banner_url)} alt="Portada" className="rounded-lg w-full h-full object-cover" />
           </div>
         )}
 
         {!isMinimal && election?.description && (
-          <div className="mb-24 pb-12 border-b border-slate-100 dark:border-slate-800">
-             <p className="text-2xl text-black dark:text-white font-medium leading-relaxed italic border-l-4 border-emerald-600 pl-8 max-w-4xl">
+          <div className="mb-24 pb-12 border-b border-ink-100 dark:border-ink-800">
+             <p className="text-2xl text-black dark:text-white font-medium leading-relaxed italic border-l-4 border-brand-600 pl-8 max-w-4xl">
               {election.description}
             </p>
           </div>
@@ -91,22 +91,22 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
               <div key={r.candidate_id} className="group">
                 <div className="flex justify-between items-end mb-6">
                   <div className="flex items-center gap-6">
-                    <div className="h-16 w-16 bg-slate-50 dark:bg-slate-800 rounded-none overflow-hidden border border-slate-100 dark:border-slate-700 shadow-sm">
-                      <img src={getImageUrl(r.image_url)} alt={r.name} className="w-full h-full object-cover" />
+                    <div className="h-16 w-16 bg-ink-50 dark:bg-ink-800 overflow-hidden border border-ink-100 dark:border-ink-700 shadow-sm">
+                      <img src={getImageUrl(r.image_url)} alt={r.name} className="rounded-lg w-full h-full object-cover" />
                     </div>
                     <div>
-                      <span className="text-[9px] font-black text-emerald-600 uppercase tracking-[0.3em] mb-1 block">RANKING {i + 1}</span>
-                      <h3 className="text-3xl font-black tracking-tighter uppercase text-black dark:text-white leading-none">{r.name}</h3>
+                      <span className="text-xs font-semibold text-brand-600 tracking-[0.1em] mb-1 block">RANKING {i + 1}</span>
+                      <h3 className="text-3xl font-semibold tracking-tight text-black dark:text-white leading-none">{r.name}</h3>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="text-5xl font-black tracking-tighter text-black dark:text-white">{percentage.toFixed(1)}%</span>
-                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] mt-1">{r.votes} VOTOS</p>
+                    <span className="text-5xl font-semibold tracking-tight text-black dark:text-white">{percentage.toFixed(1)}%</span>
+                    <p className="text-xs font-semibold text-ink-400 tracking-[0.1em] mt-1">{r.votes} VOTOS</p>
                   </div>
                 </div>
-                <div className="h-3 bg-slate-50 dark:bg-slate-800 w-full overflow-hidden border border-slate-100 dark:border-slate-700">
+                <div className="rounded-xl h-3 bg-ink-50 dark:bg-ink-800 w-full overflow-hidden border border-ink-100 dark:border-ink-700">
                   <div 
-                    className="h-full bg-emerald-600 transition-all duration-1000 ease-out" 
+                    className="h-full bg-brand-600 transition-all duration-1000 ease-out" 
                     style={{ width: `${percentage}%` }}
                   ></div>
                 </div>
@@ -116,20 +116,20 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
         </div>
 
         {(results?.ranking || []).length === 0 && (
-          <div className="py-20 text-slate-400 italic text-[11px] font-bold uppercase tracking-widest text-center">
+          <div className="py-20 text-ink-400 italic text-sm font-bold tracking-wide text-center">
             Aún no se han registrado participaciones en este proceso.
           </div>
         )}
 
-        <div className="mt-20 pt-12 border-t border-slate-100 dark:border-slate-800">
-          <p className="text-[9px] font-black uppercase tracking-[0.5em] text-slate-400">
+        <div className="mt-20 pt-12 border-t border-ink-100 dark:border-ink-800">
+          <p className="text-xs font-semibold tracking-[0.12em] text-ink-400">
             Última actualización: {lastUpdated.toLocaleTimeString()}
           </p>
         </div>
 
         {isMinimal && (
-          <footer className="mt-32 pt-12 border-t border-slate-100 dark:border-slate-800 text-center">
-            <p className="text-[9px] font-black uppercase tracking-[0.5em] text-slate-400">© {new Date().getFullYear()} Escrutinio Digital Perú</p>
+          <footer className="mt-32 pt-12 border-t border-ink-100 dark:border-ink-800 text-center">
+            <p className="text-xs font-semibold tracking-[0.12em] text-ink-400">© {new Date().getFullYear()} Escrutinio Digital Perú</p>
           </footer>
         )}
       </div>

@@ -48,10 +48,10 @@ export default function CategoryNav({
             <Link
               key={c.id}
               href={`/?category=${c.id}`}
-              className={`text-xs font-bold uppercase tracking-widest transition-colors ${
+              className={`text-xs font-bold tracking-wide transition-colors ${
                 currentCategory === c.id
                   ? "text-black underline underline-offset-8"
-                  : "text-slate-600 hover:text-black"
+                  : "text-ink-600 hover:text-black"
               }`}
             >
               {c.label}
@@ -68,10 +68,10 @@ export default function CategoryNav({
             <div className="flex items-center gap-1">
               <Link
                 href={`/?category=${c.id}`}
-                className={`text-xs font-bold uppercase tracking-widest transition-colors ${
+                className={`text-xs font-bold tracking-wide transition-colors ${
                   isActive
                     ? "text-black underline underline-offset-8"
-                    : "text-slate-600 hover:text-black"
+                    : "text-ink-600 hover:text-black"
                 }`}
               >
                 {c.label}
@@ -82,7 +82,7 @@ export default function CategoryNav({
                   setOpenDropdown(isOpen ? null : c.id);
                 }}
                 className={`p-1 rounded transition-all ${
-                  isActive ? "text-black" : "text-slate-600 hover:text-black"
+                  isActive ? "text-black" : "text-ink-600 hover:text-black"
                 }`}
                 aria-label={`Expandir ${c.label}`}
               >
@@ -104,9 +104,9 @@ export default function CategoryNav({
             </div>
 
             {isOpen && c.items && c.items.length > 0 && (
-              <div className="absolute top-full left-0 mt-3 bg-white border border-slate-200 shadow-lg rounded-lg py-2 z-50 min-w-[260px] max-h-[400px] overflow-y-auto">
-                <div className="px-4 py-2 border-b border-slate-100 mb-1">
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">
+              <div className="absolute top-full left-0 mt-3 bg-white border border-ink-200 shadow-lg rounded-lg py-2 z-50 min-w-[260px] max-h-[400px] overflow-y-auto">
+                <div className="px-4 py-2 border-b border-ink-100 mb-1">
+                  <p className="text-xs font-bold tracking-wide text-ink-500">
                     {c.label} — {c.items.length} procesos
                   </p>
                 </div>
@@ -115,11 +115,11 @@ export default function CategoryNav({
                     key={election.id}
                     href={`/election/${election.id}`}
                     onClick={() => setOpenDropdown(null)}
-                    className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-slate-50 transition-colors group"
+                    className="rounded-xl flex items-center justify-between px-4 py-2.5 text-sm hover:bg-ink-50 transition-colors group"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-0.5 h-3 ${election.is_active ? "bg-black" : "bg-slate-100"}`} />
-                      <span className="font-medium text-slate-700 group-hover:text-black">
+                      <div className={`w-0.5 h-3 ${election.is_active ? "bg-black" : "bg-ink-100"}`} />
+                      <span className="font-medium text-ink-700 group-hover:text-black">
                         {election.region_name || election.title}
                       </span>
                     </div>
@@ -133,7 +133,7 @@ export default function CategoryNav({
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className="text-slate-400 group-hover:text-black group-hover:translate-x-1 transition-all"
+                      className="text-ink-400 group-hover:text-black group-hover:translate-x-1 transition-all"
                     >
                       <line x1="5" y1="12" x2="19" y2="12" />
                       <polyline points="12 5 19 12 12 19" />

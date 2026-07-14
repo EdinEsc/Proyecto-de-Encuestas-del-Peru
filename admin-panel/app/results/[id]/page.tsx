@@ -24,16 +24,16 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   }, [id]);
 
   return (
-    <div className="py-12 bg-slate-50 dark:bg-slate-950 min-h-screen">
+    <div className="rounded-xl py-12 bg-ink-50 dark:bg-ink-950 min-h-screen">
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
         <div className="mb-8 flex items-center justify-between">
-          <Link href={id ? `/election/${id}` : "/"} className="inline-flex items-center text-sm font-medium text-slate-600 hover:text-primary transition-colors dark:text-slate-400">
+          <Link href={id ? `/election/${id}` : "/"} className="inline-flex items-center text-sm font-medium text-ink-600 hover:text-primary transition-colors dark:text-ink-400">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
             Volver a la votación
           </Link>
           
-          <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-            <span className="relative flex h-2 w-2">
+          <div className="flex items-center gap-2 text-xs font-medium text-ink-400">
+            <span className="rounded-lg relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
             </span>
@@ -42,21 +42,21 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
         </div>
 
         <div className="mb-12 text-center">
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-5xl mb-4">
+          <h1 className="text-3xl font-semibold tracking-tight text-ink-900 dark:text-white sm:text-5xl mb-4">
             Resultados en Vivo
           </h1>
-          <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+          <p className="text-lg text-ink-500 dark:text-ink-400 max-w-2xl mx-auto">
             Sigue el conteo de votos en tiempo real. La transparencia es la base de nuestra democracia digital.
           </p>
         </div>
 
         {results && <ResultBars results={results}/>}
         
-        <div className="mt-16 rounded-2xl bg-slate-900 p-8 text-white dark:bg-slate-900">
+        <div className="mt-16 rounded-2xl bg-ink-900 p-8 text-white dark:bg-ink-900">
           <div className="flex flex-col md:flex-row items-center gap-6 justify-between">
             <div>
               <h4 className="text-xl font-bold mb-2">¿Aún no has votado?</h4>
-              <p className="text-slate-400">Tu participación es fundamental para el proceso.</p>
+              <p className="text-ink-400">Tu participación es fundamental para el proceso.</p>
             </div>
             <Link href={`/election/${id}`} className="btn-primary whitespace-nowrap">
               Emitir mi voto ahora

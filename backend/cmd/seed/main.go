@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -169,14 +170,30 @@ func mustGetElectionType(ctx context.Context, pool *pgxpool.Pool, name string) s
 func upsertElection(ctx context.Context, pool *pgxpool.Pool, title, typeID string, regionID *string) string {
 	var id string
 	if err := pool.QueryRow(ctx, `
-		INSERT INTO elections(title,election_type_id,region_id,is_active,end_date)
-		VALUES($1,$2,$3,true,now()+interval '90 days')
-		ON CONFLICT(title) DO UPDATE SET is_active=true, end_date=EXCLUDED.end_date
+		INSERT INTO elections(title,slug,election_type_id,region_id,is_active,end_date)
+		VALUES($1,$2,$3,$4,true,now()+interval '90 days')
+		ON CONFLICT(title) DO UPDATE SET
+			is_active=true,
+			end_date=EXCLUDED.end_date,
+			slug=COALESCE(elections.slug, EXCLUDED.slug)
 		RETURNING id
-	`, title, typeID, regionID).Scan(&id); err != nil {
+	`, title, slugify(title), typeID, regionID).Scan(&id); err != nil {
 		log.Fatal(err)
 	}
 	return id
+}
+
+// slugify replica la lógica de usecases.slugify: las elecciones del seed también
+// necesitan slug o el panel admin no puede generar su link público.
+func slugify(s string) string {
+	s = strings.ToLower(s)
+	s = strings.NewReplacer(
+		"á", "a", "é", "e", "í", "i", "ó", "o", "ú", "u",
+		"ñ", "n", "ü", "u",
+	).Replace(s)
+	s = regexp.MustCompile(`[^a-z0-9\s-]`).ReplaceAllString(s, "")
+	s = regexp.MustCompile(`\s+`).ReplaceAllString(s, "-")
+	return strings.Trim(s, "-")
 }
 
 func mustEnv(key string) string {

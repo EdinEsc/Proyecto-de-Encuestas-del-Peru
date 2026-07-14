@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Votaciones Perú - Plataforma Democrática",
-  description: "Participa en las elecciones de manera segura y transparente.",
+  title: "Precisium — Datos precisos, decisiones certeras",
+  description: "Participa en las encuestas electorales del Perú de manera segura y transparente.",
 };
 
 import ThemeProvider from "@/components/ThemeProvider";
@@ -29,7 +29,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           } catch(e) {}
         `}} />
       </head>
-      <body className="min-h-screen bg-white dark:bg-slate-950 text-black dark:text-white antialiased font-['Outfit',_sans-serif] transition-colors duration-300">
+      <body className="min-h-screen font-sans antialiased">
         <ThemeProvider>
           <Suspense fallback={null}>
             <LayoutContent elections={elections}>

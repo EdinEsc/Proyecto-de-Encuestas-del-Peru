@@ -20,7 +20,7 @@ export default function RegionSelector() {
     <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4">
       <Link 
         href={`/?type=${type}`} 
-        className={`text-[10px] font-bold uppercase tracking-widest transition-all ${!currentRegion ? 'text-black underline underline-offset-4' : 'text-slate-400 hover:text-black'}`}
+        className={`text-xs font-bold tracking-wide transition-all ${!currentRegion ? 'text-black underline underline-offset-4' : 'text-ink-400 hover:text-black'}`}
       >
         Nacional
       </Link>
@@ -28,7 +28,7 @@ export default function RegionSelector() {
         <Link 
           key={r.id} 
           href={`/?type=${type}&region=${r.name}`} 
-          className={`text-[10px] font-bold uppercase tracking-widest transition-all ${currentRegion === r.name ? 'text-black underline underline-offset-4' : 'text-slate-400 hover:text-black'}`}
+          className={`text-xs font-bold tracking-wide transition-all ${currentRegion === r.name ? 'text-black underline underline-offset-4' : 'text-ink-400 hover:text-black'}`}
         >
           {r.name}
         </Link>

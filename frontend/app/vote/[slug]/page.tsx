@@ -72,31 +72,31 @@ export default function VotePage({ params }: { params: Promise<{ slug: string }>
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-950">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-ink-950">
         <div className="text-center space-y-6">
-          <div className="h-16 w-16 bg-red-100 text-red-500 flex items-center justify-center mx-auto text-2xl font-black">!</div>
-          <h1 className="text-2xl font-black tracking-tighter uppercase text-black dark:text-white">Proceso No Encontrado</h1>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">El enlace proporcionado no es válido o el proceso ha sido removido.</p>
+          <div className="rounded-lg h-16 w-16 bg-red-100 text-red-500 flex items-center justify-center mx-auto text-2xl font-semibold">!</div>
+          <h1 className="text-2xl font-semibold tracking-tight text-black dark:text-white">Proceso No Encontrado</h1>
+          <p className="text-sm font-bold tracking-wide text-ink-500 dark:text-ink-400">El enlace proporcionado no es válido o el proceso ha sido removido.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 text-black dark:text-white font-['Outfit',_sans-serif] antialiased">
+    <div className="min-h-screen bg-white dark:bg-ink-950 text-black dark:text-white font-['Outfit',_sans-serif] antialiased">
       {/* Minimal Header - Just logo and banner */}
-      <header className="w-full bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
+      <header className="w-full bg-white dark:bg-ink-900 border-b border-ink-100 dark:border-ink-800">
         <div className="relative w-full overflow-hidden" style={{ minHeight: '180px' }}>
           <img
             src="/banner.png"
             alt="Encuestas Perú Banner"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="rounded-lg absolute inset-0 w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
           <div className="relative z-10 flex flex-col items-center text-center py-8 px-6">
-            <div className="h-16 w-16 bg-emerald-500 text-white flex items-center justify-center mb-4 text-2xl font-black shadow-lg shadow-emerald-500/30 border-2 border-white/20">EP</div>
-            <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-1 uppercase text-white leading-none drop-shadow-lg">Encuestas Perú</h1>
-            <p className="text-white/70 text-[10px] font-black uppercase tracking-[0.4em]">
+            <div className="rounded-lg h-16 w-16 bg-brand-500 text-white flex items-center justify-center mb-4 text-2xl font-semibold shadow-lg shadow-brand-500/30 border-2 border-white/20">EP</div>
+            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight mb-1 text-white leading-none drop-shadow-lg">Encuestas Perú</h1>
+            <p className="text-white/70 text-xs font-semibold tracking-[0.12em]">
               Portal Oficial de Participación Ciudadana
             </p>
           </div>
@@ -107,58 +107,58 @@ export default function VotePage({ params }: { params: Promise<{ slug: string }>
       <main className="max-w-6xl mx-auto px-6 py-16">
         {!election ? (
           <div className="flex items-center justify-center py-32">
-            <div className="text-[10px] font-black uppercase tracking-widest text-slate-300 dark:text-slate-600 animate-pulse">Cargando proceso electoral...</div>
+            <div className="text-xs font-semibold tracking-wide text-ink-300 dark:text-ink-600 animate-pulse">Cargando proceso electoral...</div>
           </div>
         ) : (
           <>
             <div className="mb-16">
               <div className="flex items-center gap-6 mb-8">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-emerald-600 text-white px-3 py-1">
+                <span className="rounded-xl text-xs font-semibold tracking-[0.08em] bg-brand-600 text-white px-3 py-1">
                   {election.election_type || "Proceso Oficial"}
                 </span>
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-800 dark:text-slate-200 border-l border-slate-300 dark:border-slate-600 pl-6">
+                <span className="text-xs font-semibold tracking-[0.1em] text-ink-800 dark:text-ink-200 border-l border-ink-300 dark:border-ink-600 pl-6">
                   {election.is_active ? 'PROCESO EN CURSO' : 'ESCRUTINIO FINALIZADO'}
                 </span>
               </div>
 
-              <h2 className="text-5xl font-black tracking-tighter mb-10 leading-[1.1] text-black dark:text-white">{election.title}</h2>
+              <h2 className="text-5xl font-semibold tracking-tight mb-10 leading-[1.1] text-black dark:text-white">{election.title}</h2>
 
               {election.banner_url && (
-                <div className="w-full h-[400px] bg-slate-50 dark:bg-slate-800 mb-16 overflow-hidden border border-slate-100 dark:border-slate-700 shadow-xl">
-                  <img src={getImageUrl(election.banner_url)} alt="Portada" className="w-full h-full object-cover" />
+                <div className="rounded-xl w-full h-[400px] bg-ink-50 dark:bg-ink-800 mb-16 overflow-hidden border border-ink-100 dark:border-ink-700 shadow-xl">
+                  <img src={getImageUrl(election.banner_url)} alt="Portada" className="rounded-lg w-full h-full object-cover" />
                 </div>
               )}
 
-              <div className="grid md:grid-cols-2 gap-12 border-t border-slate-100 dark:border-slate-800 pt-10">
+              <div className="grid md:grid-cols-2 gap-12 border-t border-ink-100 dark:border-ink-800 pt-10">
                 <div className="space-y-6">
-                  <p className="text-xl text-black dark:text-white font-medium leading-relaxed italic border-l-4 border-emerald-600 pl-8">
+                  <p className="text-xl text-black dark:text-white font-medium leading-relaxed italic border-l-4 border-brand-600 pl-8">
                     {election.description || "Su voto es fundamental para la transparencia democrática."}
                   </p>
 
-                  <div className="bg-slate-50 dark:bg-slate-800/50 p-8 border border-slate-100 dark:border-slate-700 space-y-6">
+                  <div className="rounded-xl bg-ink-50 dark:bg-ink-800/50 p-8 border border-ink-100 dark:border-ink-700 space-y-6">
                     <div className="flex items-center gap-3">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600 dark:text-emerald-400"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-black dark:text-white">Seguridad de Voto Estricta</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-brand-600 dark:text-brand-400"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                      <span className="text-xs font-semibold tracking-[0.08em] text-black dark:text-white">Seguridad de Voto Estricta</span>
                     </div>
-                    <p className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest leading-loose">
+                    <p className="text-sm font-bold text-ink-600 dark:text-ink-400 tracking-wide leading-loose">
                       Los votos son auditados bajo protocolo estricto: 1 voto por IP + Identificador Digital, 
                       evitando el voto múltiple y garantizando la integridad del proceso.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex flex-col justify-center text-center p-10 bg-white dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 shadow-sm">
-                  <h3 className="text-2xl font-black tracking-tight italic mb-6 text-black dark:text-white">
+                <div className="rounded-xl flex flex-col justify-center text-center p-10 bg-white dark:bg-ink-800/50 border border-ink-100 dark:border-ink-700 shadow-sm">
+                  <h3 className="text-2xl font-semibold tracking-tight italic mb-6 text-black dark:text-white">
                     "¿Por cuál de los siguientes pre candidatos a {election.region_name || "la Nación"} votaría?"
                   </h3>
-                  <div className="h-1 w-16 bg-emerald-600 mx-auto mb-6"></div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 dark:text-slate-400">
+                  <div className="rounded-lg h-1 w-16 bg-brand-600 mx-auto mb-6"></div>
+                  <p className="text-xs font-semibold tracking-[0.12em] text-ink-500 dark:text-ink-400">
                     Cierre de votaciones: {new Date(election.end_date).toLocaleDateString()}
                   </p>
                   {results && (
-                    <div className="mt-8 pt-8 border-t border-slate-50 dark:border-slate-700">
-                      <p className="text-[9px] font-black uppercase tracking-[0.5em] text-emerald-600 dark:text-emerald-400 mb-2">Participación Total</p>
-                      <p className="text-3xl font-black tracking-tighter text-black dark:text-white">{results.total_votes} VOTOS</p>
+                    <div className="mt-8 pt-8 border-t border-ink-50 dark:border-ink-700">
+                      <p className="text-xs font-semibold tracking-[0.12em] text-brand-600 dark:text-brand-400 mb-2">Participación Total</p>
+                      <p className="text-3xl font-semibold tracking-tight text-black dark:text-white">{results.total_votes} VOTOS</p>
                     </div>
                   )}
                 </div>
@@ -169,23 +169,23 @@ export default function VotePage({ params }: { params: Promise<{ slug: string }>
               {candidates?.map(c => {
                 const stats = getCandidateStats(c.id);
                 return (
-                  <div key={c.id} className="group flex flex-col bg-white dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 overflow-hidden hover:border-emerald-600 dark:hover:border-emerald-500 transition-all duration-500">
-                    <div className="relative h-72 bg-slate-50 dark:bg-slate-800 overflow-hidden">
-                      <img src={getImageUrl(c.image_url)} alt={c.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 transform group-hover:scale-105" />
+                  <div key={c.id} className="rounded-xl group flex flex-col bg-white dark:bg-ink-800/50 border border-ink-100 dark:border-ink-700 overflow-hidden hover:border-brand-600 dark:hover:border-brand-500 transition-all duration-500">
+                    <div className="relative h-72 bg-ink-50 dark:bg-ink-800 overflow-hidden">
+                      <img src={getImageUrl(c.image_url)} alt={c.name} className="rounded-lg w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 transform group-hover:scale-105" />
                       <div className="absolute top-5 right-5 flex flex-col items-end gap-2">
-                        <span className="bg-black text-white px-3 py-1.5 text-[13px] font-black tracking-tighter shadow-xl">
+                        <span className="rounded-xl bg-black text-white px-3 py-1.5 text-[13px] font-semibold tracking-tight shadow-xl">
                           {stats.percentage}%
                         </span>
-                        <span className="bg-emerald-600 text-white px-2 py-1 text-[8px] font-bold uppercase tracking-widest">
+                        <span className="rounded-xl bg-brand-600 text-white px-2 py-1 text-xs font-bold tracking-wide">
                           {stats.votes} Votos
                         </span>
                       </div>
                     </div>
 
                     <div className="p-8 flex flex-col flex-grow">
-                      <h3 className="text-2xl font-black mb-4 tracking-tighter text-black dark:text-white uppercase leading-none">{c.name}</h3>
-                      <div className="h-0.5 w-8 bg-emerald-600 mb-6"></div>
-                      <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-8 flex-grow italic">
+                      <h3 className="text-2xl font-semibold mb-4 tracking-tight text-black dark:text-white leading-none">{c.name}</h3>
+                      <div className="h-0.5 w-8 bg-brand-600 mb-6"></div>
+                      <p className="text-ink-600 dark:text-ink-400 text-sm leading-relaxed mb-8 flex-grow italic">
                         "{c.description || "Comprometido con el desarrollo transparente y el servicio íntegro a la ciudadanía."}"
                       </p>
 
@@ -194,7 +194,7 @@ export default function VotePage({ params }: { params: Promise<{ slug: string }>
                           href={c.button_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="mb-6 inline-block w-full border border-slate-200 dark:border-slate-600 py-3 text-[10px] font-black uppercase tracking-widest text-center text-black dark:text-white hover:bg-black dark:hover:bg-emerald-600 hover:text-white hover:border-black dark:hover:border-emerald-600 transition-all"
+                          className="rounded-xl mb-6 inline-block w-full border border-ink-200 dark:border-ink-600 py-3 text-xs font-semibold tracking-wide text-center text-black dark:text-white hover:bg-black dark:hover:bg-brand-600 hover:text-white hover:border-black dark:hover:border-brand-600 transition-all"
                         >
                           {c.button_text}
                         </a>
@@ -202,10 +202,10 @@ export default function VotePage({ params }: { params: Promise<{ slug: string }>
 
                       <div className="flex flex-col gap-4 mt-auto">
                         <button
-                          className={`w-full py-5 text-[10px] font-black uppercase tracking-[0.4em] transition-all disabled:opacity-50 border-2 ${
+                          className={`w-full py-5 text-xs font-semibold tracking-[0.12em] transition-all disabled:opacity-50 border-2 ${
                             voted
-                              ? "border-slate-100 dark:border-slate-700 text-slate-300 dark:text-slate-600 cursor-not-allowed"
-                              : "border-black dark:border-emerald-600 bg-black dark:bg-emerald-600 text-white hover:bg-emerald-600 hover:border-emerald-600"
+                              ? "border-ink-100 dark:border-ink-700 text-ink-300 dark:text-ink-600 cursor-not-allowed"
+                              : "border-black dark:border-brand-600 bg-black dark:bg-brand-600 text-white hover:bg-brand-600 hover:border-brand-600"
                           }`}
                           disabled={voted || !election.is_active || loading}
                           onClick={() => vote(c.id)}
@@ -213,7 +213,7 @@ export default function VotePage({ params }: { params: Promise<{ slug: string }>
                           {loading ? 'Procesando...' : voted ? 'PARTICIPACIÓN REGISTRADA' : 'REGISTRAR MI VOTO'}
                         </button>
 
-                        <div className="pt-6 border-t border-slate-50 dark:border-slate-700">
+                        <div className="pt-6 border-t border-ink-50 dark:border-ink-700">
                           <CandidateComments candidateId={c.id} />
                         </div>
                       </div>
@@ -227,7 +227,7 @@ export default function VotePage({ params }: { params: Promise<{ slug: string }>
               <div className="mt-24 text-center">
                 <Link
                   href={`/results/${election.id}?minimal=true`}
-                  className="inline-flex items-center justify-center bg-black dark:bg-emerald-600 text-white px-16 py-6 text-[11px] font-black uppercase tracking-[0.5em] transition-all hover:bg-emerald-600 dark:hover:bg-emerald-500"
+                  className="rounded-xl inline-flex items-center justify-center bg-black dark:bg-brand-600 text-white px-16 py-6 text-sm font-semibold tracking-[0.12em] transition-all hover:bg-brand-600 dark:hover:bg-brand-500"
                 >
                   Ver Escrutinio Detallado
                 </Link>
@@ -238,21 +238,21 @@ export default function VotePage({ params }: { params: Promise<{ slug: string }>
       </main>
 
       {/* Minimal footer */}
-      <footer className="border-t border-slate-100 dark:border-slate-800 py-8 bg-white dark:bg-slate-950">
+      <footer className="rounded-xl border-t border-ink-100 dark:border-ink-800 py-8 bg-white dark:bg-ink-950">
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
-          <span className="text-[9px] font-bold uppercase tracking-[0.5em] text-slate-400 dark:text-slate-500">
+          <span className="text-xs font-bold tracking-[0.12em] text-ink-400 dark:text-ink-500">
             © {new Date().getFullYear()} Escrutinio Digital Perú
           </span>
           <div className="flex items-center gap-3">
-            <span className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-black dark:text-white">Red en Línea</span>
+            <span className="h-1.5 w-1.5 bg-brand-500 rounded-full animate-pulse"></span>
+            <span className="text-xs font-bold tracking-[0.08em] text-black dark:text-white">Red en Línea</span>
           </div>
         </div>
       </footer>
 
       {message && (
         <div className="fixed bottom-10 right-10 z-[200] animate-bounce">
-          <div className="bg-emerald-600 text-white px-10 py-6 text-[11px] font-black uppercase tracking-widest shadow-2xl border-2 border-white">
+          <div className="rounded-xl bg-brand-600 text-white px-10 py-6 text-sm font-semibold tracking-wide shadow-2xl border-2 border-white">
             {message}
           </div>
         </div>

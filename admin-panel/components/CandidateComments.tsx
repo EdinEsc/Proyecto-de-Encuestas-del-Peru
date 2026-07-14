@@ -39,7 +39,7 @@ export default function CandidateComments({ candidateId }: { candidateId: string
     <div className="mt-6 space-y-4">
       <div className="flex gap-2">
         <input 
-          className="flex-grow rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none dark:border-slate-800 dark:bg-slate-900 dark:text-white" 
+          className="flex-grow rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm outline-none dark:border-ink-800 dark:bg-ink-900 dark:text-white" 
           placeholder="Escribe un comentario..." 
           value={newComment}
           onChange={e => setNewComment(e.target.value)}
@@ -53,19 +53,19 @@ export default function CandidateComments({ candidateId }: { candidateId: string
           {loading ? "..." : "Enviar"}
         </button>
       </div>
-      {msg && <p className="text-[10px] text-slate-500">{msg}</p>}
+      {msg && <p className="text-xs text-ink-500">{msg}</p>}
       
       <div className="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
         {comments.map(c => (
-          <div key={c.id} className="rounded-lg bg-slate-50 p-3 dark:bg-slate-800/50">
-            <p className="text-xs text-slate-700 dark:text-slate-300">{c.content}</p>
-            <div className="mt-1 flex justify-between text-[10px] text-slate-400">
+          <div key={c.id} className="rounded-lg bg-ink-50 p-3 dark:bg-ink-800/50">
+            <p className="text-xs text-ink-700 dark:text-ink-300">{c.content}</p>
+            <div className="mt-1 flex justify-between text-xs text-ink-400">
               <span>IP: {c.ip_address}</span>
               <span>{new Date(c.created_at).toLocaleString()}</span>
             </div>
           </div>
         ))}
-        {comments.length === 0 && <p className="text-center text-xs text-slate-400 py-2">Sin comentarios aún.</p>}
+        {comments.length === 0 && <p className="text-center text-xs text-ink-400 py-2">Sin comentarios aún.</p>}
       </div>
     </div>
   );
