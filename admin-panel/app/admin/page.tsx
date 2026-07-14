@@ -151,7 +151,7 @@ function ElectionManagement({ onClose, onDeleteCandidate }: { onClose: (id: stri
   const [candidatesMap, setCandidatesMap] = useState<Record<string, any[]>>({});
 
   useEffect(() => {
-    api<any[]>("/elections").then(setElections);
+    api<any[]>("/elections").then(d => setElections(d || []));
   }, []);
 
   const loadCandidates = (id: string) => {

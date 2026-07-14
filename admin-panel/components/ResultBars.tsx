@@ -1,7 +1,9 @@
 import { Results } from "@/lib/api";
 
 export default function ResultBars({ results }: { results: Results }) {
-  const maxVotes = Math.max(...results.ranking.map(r => r.votes), 1);
+  // La API devuelve ranking: null cuando la elección aún no tiene votos.
+  const ranking = results?.ranking ?? [];
+  const totalVotes = results?.total_votes ?? 0;
 
   return (
     <div className="space-y-6">
@@ -11,14 +13,14 @@ export default function ResultBars({ results }: { results: Results }) {
           <p className="text-ink-500">Basado en los votos escrutados hasta el momento.</p>
         </div>
         <div className="text-right">
-          <div className="text-4xl font-semibold text-black">{results.total_votes}</div>
+          <div className="text-4xl font-semibold text-black">{totalVotes}</div>
           <div className="text-xs tracking-wide font-bold text-ink-400">Votos Totales</div>
         </div>
       </div>
 
       <div className="grid gap-4">
-        {results.ranking.map((r, i) => {
-          const pct = results.total_votes === 0 ? 0 : Math.round((r.votes / results.total_votes) * 100);
+        {ranking.map((r, i) => {
+          const pct = totalVotes === 0 ? 0 : Math.round((r.votes / totalVotes) * 100);
           const isWinner = i === 0 && r.votes > 0;
           
           return (
@@ -59,7 +61,7 @@ export default function ResultBars({ results }: { results: Results }) {
         })}
       </div>
       
-      {results.ranking.length === 0 && (
+      {ranking.length === 0 && (
         <div className="rounded-xl text-center py-12 border border-dashed border-ink-200">
           <p className="text-ink-400 text-xs tracking-wide font-bold">Sin participaciones registradas.</p>
         </div>

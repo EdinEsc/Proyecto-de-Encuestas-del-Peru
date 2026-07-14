@@ -10,7 +10,7 @@ export default function CandidateComments({ candidateId }: { candidateId: string
   const [loading, setLoading] = useState(false);
 
   const loadComments = () => {
-    api<Comment[]>(`/candidates/${candidateId}/comments`).then(setComments).catch(() => {});
+    api<Comment[]>(`/candidates/${candidateId}/comments`).then(d => setComments(d || [])).catch(() => {});
   };
 
   useEffect(() => {

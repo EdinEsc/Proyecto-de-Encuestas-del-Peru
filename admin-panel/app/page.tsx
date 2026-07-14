@@ -497,7 +497,7 @@ function ElectionManagement({ onClose, onDeleteElection, onDeleteCandidate, refr
   const [modal, setModal] = useState<{ isOpen: boolean, type: 'election' | 'candidate' | 'comment' | 'vote', id: string, extraId?: string } | null>(null);
 
   const refresh = () => {
-    api<any[]>("/admin/elections", { headers: authHeaders() }).then(setAllElections).catch(() => {});
+    api<any[]>("/admin/elections", { headers: authHeaders() }).then(d => setAllElections(d || [])).catch(() => {});
   };
 
   useEffect(() => { refresh(); }, [refreshKey]);
@@ -511,9 +511,10 @@ function ElectionManagement({ onClose, onDeleteElection, onDeleteCandidate, refr
   }, [allElections]);
 
   const loadCandidates = (id: string) => {
-    api<Candidate[]>(`/elections/${id}/candidates`).then(list => {
-      setCandidatesMap(prev => ({ ...prev, [id]: list }));
-    });
+    api<Candidate[]>(`/elections/${id}/candidates`)
+      // La API responde null (no []) cuando la elección no tiene candidatos.
+      .then(list => setCandidatesMap(prev => ({ ...prev, [id]: list || [] })))
+      .catch(() => setCandidatesMap(prev => ({ ...prev, [id]: [] })));
   };
 
   const toggleRow = (id: string) => {
@@ -887,7 +888,7 @@ function CreateElectionType({ onSave, onDelete, refreshKey }: { onSave: (name: s
   const [name, setName] = useState("");
   const [list, setList] = useState<any[]>([]);
 
-  useEffect(() => { api<any[]>("/election-types").then(setList).catch(() => {}); }, [refreshKey]);
+  useEffect(() => { api<any[]>("/election-types").then(d => setList(d || [])).catch(() => {}); }, [refreshKey]);
 
   return (
     <div className="space-y-6">
@@ -959,7 +960,7 @@ function CreateRegion({ onSave, onDelete, refreshKey }: { onSave: (d: any) => vo
   const [list, setList] = useState<any[]>([]);
   const pager = usePagination<any>(list, 10);
 
-  useEffect(() => { api<any[]>("/regions").then(setList).catch(() => {}); }, [refreshKey]);
+  useEffect(() => { api<any[]>("/regions").then(d => setList(d || [])).catch(() => {}); }, [refreshKey]);
 
   return (
     <div className="space-y-6">
@@ -1045,8 +1046,8 @@ function CreateElection({ onSave, isEdit, initialData }: { onSave: (d: any) => v
   const [regions, setRegions] = useState<any[]>([]);
 
   useEffect(() => {
-    api<any[]>("/election-types").then(setTypes).catch(() => {});
-    api<any[]>("/regions").then(setRegions).catch(() => {});
+    api<any[]>("/election-types").then(d => setTypes(d || [])).catch(() => {});
+    api<any[]>("/regions").then(d => setRegions(d || [])).catch(() => {});
   }, []);
 
   const filteredRegions = useMemo(() => {
@@ -1257,7 +1258,7 @@ function CreateCandidate({ onSave, isEdit, initialData }: { onSave: (d: any) => 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [elections, setElections] = useState<any[]>([]);
 
-  useEffect(() => { api<Election[]>("/admin/elections", { headers: authHeaders() }).then(setElections).catch(() => {}); }, []);
+  useEffect(() => { api<Election[]>("/admin/elections", { headers: authHeaders() }).then(d => setElections(d || [])).catch(() => {}); }, []);
 
   const validate = () => {
     const next: Record<string, string> = {};
@@ -1446,7 +1447,7 @@ function CategoryElectionManager({ categoryLabel, filterFn, refreshKey, onSave, 
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   useEffect(() => {
-    api<any[]>("/admin/elections", { headers: authHeaders() }).then(setAllElections).catch(() => {});
+    api<any[]>("/admin/elections", { headers: authHeaders() }).then(d => setAllElections(d || [])).catch(() => {});
   }, [refreshKey]);
 
   const filtered = (allElections || []).filter(filterFn);

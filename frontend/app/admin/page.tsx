@@ -159,7 +159,7 @@ function ElectionManagement({ onClose, onDeleteCandidate, refreshKey }: { onClos
   const [candidatesMap, setCandidatesMap] = useState<Record<string, any[]>>({});
 
   useEffect(() => {
-    api<any[]>("/admin/elections").then(setElections).catch(() => {});
+    api<any[]>("/admin/elections").then(d => setElections(d || [])).catch(() => {});
   }, [refreshKey]);
 
   const loadCandidates = (id: string) => {
@@ -238,7 +238,7 @@ function CreateElectionType({ onSave, refreshKey }: { onSave: (name: string) => 
   const [list, setList] = useState<any[]>([]);
 
   useEffect(() => {
-    api<any[]>("/election-types").then(setList).catch(() => {});
+    api<any[]>("/election-types").then(d => setList(d || [])).catch(() => {});
   }, [refreshKey]);
 
   return (
@@ -273,7 +273,7 @@ function CreateRegion({ onSave, refreshKey }: { onSave: (d: any) => void, refres
   const [regions, setRegions] = useState<any[]>([]);
 
   useEffect(() => {
-    api<any[]>("/regions").then(setRegions).catch(() => {});
+    api<any[]>("/regions").then(d => setRegions(d || [])).catch(() => {});
   }, [refreshKey]);
 
   return (
@@ -313,8 +313,8 @@ function CreateElection({ onSave, refreshKey }: { onSave: (d: any) => void, refr
   const [regions, setRegions] = useState<any[]>([]);
 
   useEffect(() => {
-    api<any[]>("/election-types").then(setTypes).catch(() => {});
-    api<any[]>("/regions").then(setRegions).catch(() => {});
+    api<any[]>("/election-types").then(d => setTypes(d || [])).catch(() => {});
+    api<any[]>("/regions").then(d => setRegions(d || [])).catch(() => {});
   }, [refreshKey]);
 
   return (
@@ -364,7 +364,7 @@ function CreateCandidate({ onSave, refreshKey }: { onSave: (d: any) => void, ref
 
   useEffect(() => {
     // Usar el endpoint admin para ver todas las elecciones
-    api<Election[]>("/admin/elections", { headers: authHeaders() }).then(setElections).catch(() => {});
+    api<Election[]>("/admin/elections", { headers: authHeaders() }).then(d => setElections(d || [])).catch(() => {});
   }, [refreshKey]);
 
   return (

@@ -13,7 +13,7 @@ export default function RegionSelector() {
   const currentRegion = searchParams.get("region") || "";
 
   useEffect(() => {
-    api<any[]>("/regions").then(setRegions).catch(() => {});
+    api<any[]>("/regions").then(d => setRegions(d || [])).catch(() => {});
   }, []);
 
   return (

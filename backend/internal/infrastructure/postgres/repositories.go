@@ -31,7 +31,7 @@ func (r ElectionRepo) List(activeOnly bool, electionType string, regionName stri
 		return nil, err
 	}
 	defer rows.Close()
-	var list []domain.Election
+	list := []domain.Election{} // nunca nil: un slice nil se serializa como null y rompe los .map del cliente
 	for rows.Next() {
 		var e domain.Election
 		var regionID, regionName, slug *string
@@ -108,7 +108,7 @@ func (r CandidateRepo) ListByElection(electionID string) ([]domain.Candidate, er
 		return nil, err
 	}
 	defer rows.Close()
-	var list []domain.Candidate
+	list := []domain.Candidate{}
 	for rows.Next() {
 		var c domain.Candidate
 		if err := rows.Scan(&c.ID, &c.Name, &c.ImageURL, &c.Description, &c.ButtonText, &c.ButtonURL, &c.ElectionID); err != nil {
@@ -162,7 +162,7 @@ func (r VoteRepo) Results(electionID string) ([]domain.ResultItem, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var list []domain.ResultItem
+	list := []domain.ResultItem{}
 	for rows.Next() {
 		var it domain.ResultItem
 		if err := rows.Scan(&it.CandidateID, &it.Name, &it.ImageURL, &it.Votes); err != nil {
@@ -183,7 +183,7 @@ func (r CommentRepo) ListByCandidate(candidateID string) ([]domain.Comment, erro
 		return nil, err
 	}
 	defer rows.Close()
-	var list []domain.Comment
+	list := []domain.Comment{}
 	for rows.Next() {
 		var cm domain.Comment
 		if err := rows.Scan(&cm.ID, &cm.CandidateID, &cm.Content, &cm.IPAddress, &cm.CreatedAt); err != nil {
@@ -219,7 +219,7 @@ func (r CatalogRepo) ListElectionTypes() ([]domain.ElectionType, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var list []domain.ElectionType
+	list := []domain.ElectionType{}
 	for rows.Next() {
 		var et domain.ElectionType
 		if err := rows.Scan(&et.ID, &et.Name); err != nil {
@@ -239,7 +239,7 @@ func (r CatalogRepo) ListRegions(level string, parentID string) ([]domain.Region
 		return nil, err
 	}
 	defer rows.Close()
-	var list []domain.Region
+	list := []domain.Region{}
 	for rows.Next() {
 		var rg domain.Region
 		if err := rows.Scan(&rg.ID, &rg.Name, &rg.ParentID, &rg.Level); err != nil {
