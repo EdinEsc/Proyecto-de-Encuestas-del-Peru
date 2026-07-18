@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { api, Election } from "@/lib/api";
 import CategoryNav from "@/components/CategoryNav";
+import { electionTone, toneBar, toneText, toneButton, toneChip } from "@/lib/electionStyle";
 
 export const dynamic = "force-dynamic";
 
@@ -59,36 +60,45 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
 
         <section className="grid gap-4">
           {filteredElections.length > 0 ? (
-            filteredElections.map(e => (
-              <Link
-                href={`/election/${e.id}`}
-                key={e.id}
-                className="card-interactive group flex flex-col justify-between gap-6 p-6 md:flex-row md:items-center"
-              >
-                <div className="min-w-0">
-                  <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-medium text-ink-400">{e.election_type}</span>
-                    <span className={e.is_active ? "badge-live" : "badge-closed"}>
-                      {e.is_active && <span className="h-1.5 w-1.5 rounded-full bg-accent-500" />}
-                      {e.is_active ? "En vivo" : "Cerrado"}
+            filteredElections.map(e => {
+              const tone = electionTone(e.election_type);
+              return (
+                <Link
+                  href={`/election/${e.id}`}
+                  key={e.id}
+                  className="card-interactive group relative flex flex-col justify-between gap-6 overflow-hidden p-6 pl-7 md:flex-row md:items-center"
+                >
+                  {/* Franja de color según el tipo de proceso */}
+                  <span
+                    className={`absolute inset-y-0 left-0 w-1.5 transition-all duration-200 group-hover:w-2 ${toneBar[tone]}`}
+                    aria-hidden="true"
+                  />
+
+                  <div className="min-w-0">
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      <span className={toneChip[tone]}>{e.election_type}</span>
+                      <span className={e.is_active ? "badge-live" : "badge-closed"}>
+                        {e.is_active && <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent-500" />}
+                        {e.is_active ? "En vivo" : "Cerrado"}
+                      </span>
+                    </div>
+                    <h3 className={`text-xl font-semibold transition-colors ${toneText[tone]}`}>
+                      {e.title}
+                    </h3>
+                  </div>
+
+                  <div className="flex shrink-0 items-center gap-6">
+                    <div className="text-right">
+                      <p className="text-xs font-medium text-steel-400">Ámbito</p>
+                      <p className="mt-0.5 text-sm font-semibold">{e.region_name || "Nacional"}</p>
+                    </div>
+                    <span className={`flex h-11 w-11 items-center justify-center rounded-xl border border-steel-200 text-steel-500 transition-colors dark:border-white/10 dark:text-steel-300 ${toneButton[tone]}`}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </span>
                   </div>
-                  <h3 className="text-xl font-semibold transition-colors group-hover:text-brand-600 dark:group-hover:text-brand-400">
-                    {e.title}
-                  </h3>
-                </div>
-
-                <div className="flex shrink-0 items-center gap-6">
-                  <div className="text-right">
-                    <p className="text-xs font-medium text-ink-400">Ámbito</p>
-                    <p className="mt-0.5 text-sm font-semibold">{e.region_name || "Nacional"}</p>
-                  </div>
-                  <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-ink-200 text-ink-500 transition-colors group-hover:border-brand-600 group-hover:bg-brand-600 group-hover:text-white dark:border-white/10 dark:text-ink-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                  </span>
-                </div>
-              </Link>
-            ))
+                </Link>
+              );
+            })
           ) : (
             <div className="card flex flex-col items-center gap-3 p-16 text-center">
               <span className="flex h-12 w-12 items-center justify-center rounded-full bg-ink-100 text-ink-400 dark:bg-white/5">

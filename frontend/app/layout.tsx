@@ -3,6 +3,11 @@ import "./globals.css";
 export const metadata = {
   title: "Precisium — Datos precisos, decisiones certeras",
   description: "Participa en las encuestas electorales del Perú de manera segura y transparente.",
+  icons: {
+    icon: "/locoicono.png",
+    shortcut: "/locoicono.png",
+    apple: "/locoicono.png",
+  },
 };
 
 import ThemeProvider from "@/components/ThemeProvider";

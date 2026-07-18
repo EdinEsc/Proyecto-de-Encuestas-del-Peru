@@ -33,7 +33,7 @@ export default function CookieConsent() {
 
   return (
     <div className="fixed inset-0 z-[300] flex items-end justify-center p-6 md:p-12 pointer-events-none">
-      <div className="rounded-xl w-full max-w-5xl bg-white dark:bg-ink-900 shadow-[0_30px_100px_rgba(16,185,129,0.15)] border-t-4 border-brand-600 p-8 md:p-12 pointer-events-auto animate-in fade-in slide-in-from-bottom-20 duration-700">
+      <div className="pointer-events-auto w-full max-w-5xl animate-in rounded-xl border border-steel-200 border-t-4 border-t-brand-600 bg-white p-8 shadow-card fade-in slide-in-from-bottom-20 duration-700 dark:border-white/10 dark:border-t-brand-500 dark:bg-ink-900 md:p-12">
         
         {!showSettings ? (
           /* Main Banner View */
@@ -54,7 +54,7 @@ export default function CookieConsent() {
               </button>
               <button 
                 onClick={handleAccept}
-                className="rounded-xl bg-brand-600 text-white px-12 py-5 text-xs font-semibold tracking-[0.1em] hover:bg-brand-500 transition-all shadow-[0_15px_30px_rgba(16,185,129,0.2)]"
+                className="rounded-xl bg-brand-600 px-12 py-5 text-xs font-semibold tracking-[0.1em] text-white transition-colors hover:bg-brand-700"
               >
                 Aceptar
               </button>
@@ -121,7 +121,7 @@ export default function CookieConsent() {
             <div className="flex justify-end pt-8 border-t border-ink-50 dark:border-ink-800">
               <button 
                 onClick={handleAccept}
-                className="rounded-xl bg-black dark:bg-brand-600 text-white px-12 py-5 text-xs font-semibold tracking-[0.1em] hover:bg-brand-600 dark:hover:bg-brand-500 transition-all shadow-[0_10px_20px_rgba(0,0,0,0.1)]"
+                className="rounded-xl bg-ink-900 px-12 py-5 text-xs font-semibold tracking-[0.1em] text-white transition-colors hover:bg-brand-600 dark:bg-brand-600 dark:hover:bg-brand-700"
               >
                 Guardar y Aceptar
               </button>

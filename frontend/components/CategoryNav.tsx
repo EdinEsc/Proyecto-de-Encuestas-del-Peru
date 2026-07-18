@@ -48,10 +48,10 @@ export default function CategoryNav({
             <Link
               key={c.id}
               href={`/?category=${c.id}`}
-              className={`text-xs font-bold tracking-wide transition-colors ${
+              className={`nav-underline text-xs font-bold tracking-wide ${
                 currentCategory === c.id
-                  ? "text-black underline underline-offset-8"
-                  : "text-ink-600 hover:text-black"
+                  ? "nav-underline-active text-ink-900 dark:text-white"
+                  : "text-steel-500 hover:text-ink-900 dark:text-steel-400 dark:hover:text-white"
               }`}
             >
               {c.label}
@@ -65,13 +65,17 @@ export default function CategoryNav({
 
         return (
           <div key={c.id} className="relative">
-            <div className="flex items-center gap-1">
+            <div
+              className={`nav-underline flex items-center gap-1 ${
+                isActive || isOpen ? "nav-underline-active" : ""
+              }`}
+            >
               <Link
                 href={`/?category=${c.id}`}
                 className={`text-xs font-bold tracking-wide transition-colors ${
                   isActive
-                    ? "text-black underline underline-offset-8"
-                    : "text-ink-600 hover:text-black"
+                    ? "text-ink-900 dark:text-white"
+                    : "text-steel-500 hover:text-ink-900 dark:text-steel-400 dark:hover:text-white"
                 }`}
               >
                 {c.label}
@@ -81,8 +85,10 @@ export default function CategoryNav({
                   e.preventDefault();
                   setOpenDropdown(isOpen ? null : c.id);
                 }}
-                className={`p-1 rounded transition-all ${
-                  isActive ? "text-black" : "text-ink-600 hover:text-black"
+                className={`rounded p-1 transition-colors ${
+                  isActive
+                    ? "text-ink-900 dark:text-white"
+                    : "text-steel-500 hover:text-ink-900 dark:text-steel-400 dark:hover:text-white"
                 }`}
                 aria-label={`Expandir ${c.label}`}
               >
@@ -104,9 +110,9 @@ export default function CategoryNav({
             </div>
 
             {isOpen && c.items && c.items.length > 0 && (
-              <div className="absolute top-full left-0 mt-3 bg-white border border-ink-200 shadow-lg rounded-lg py-2 z-50 min-w-[260px] max-h-[400px] overflow-y-auto">
-                <div className="px-4 py-2 border-b border-ink-100 mb-1">
-                  <p className="text-xs font-bold tracking-wide text-ink-500">
+              <div className="absolute top-full left-0 z-50 mt-3 max-h-[400px] min-w-[260px] overflow-y-auto rounded-lg border border-steel-200 bg-white py-2 shadow-card dark:border-white/10 dark:bg-ink-900">
+                <div className="mb-1 border-b border-steel-100 px-4 py-2 dark:border-white/10">
+                  <p className="text-xs font-bold tracking-wide text-steel-500 dark:text-steel-400">
                     {c.label} — {c.items.length} procesos
                   </p>
                 </div>
@@ -115,11 +121,11 @@ export default function CategoryNav({
                     key={election.id}
                     href={`/election/${election.id}`}
                     onClick={() => setOpenDropdown(null)}
-                    className="rounded-xl flex items-center justify-between px-4 py-2.5 text-sm hover:bg-ink-50 transition-colors group"
+                    className="group flex items-center justify-between rounded-xl px-4 py-2.5 text-sm transition-colors hover:bg-steel-50 dark:hover:bg-white/5"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-0.5 h-3 ${election.is_active ? "bg-black" : "bg-ink-100"}`} />
-                      <span className="font-medium text-ink-700 group-hover:text-black">
+                      <div className={`h-3 w-0.5 rounded-full ${election.is_active ? "bg-accent-500" : "bg-steel-200 dark:bg-white/15"}`} />
+                      <span className="font-medium text-steel-700 group-hover:text-ink-900 dark:text-steel-300 dark:group-hover:text-white">
                         {election.region_name || election.title}
                       </span>
                     </div>
@@ -133,7 +139,7 @@ export default function CategoryNav({
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className="text-ink-400 group-hover:text-black group-hover:translate-x-1 transition-all"
+                      className="text-steel-400 transition-all group-hover:translate-x-1 group-hover:text-brand-600 dark:group-hover:text-brand-400"
                     >
                       <line x1="5" y1="12" x2="19" y2="12" />
                       <polyline points="12 5 19 12 12 19" />

@@ -4,6 +4,11 @@ import Script from "next/script";
 export const metadata = {
   title: "Precisium — Panel de administración",
   description: "Gestión centralizada de procesos electorales.",
+  icons: {
+    icon: "/locoicono.png",
+    shortcut: "/locoicono.png",
+    apple: "/locoicono.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

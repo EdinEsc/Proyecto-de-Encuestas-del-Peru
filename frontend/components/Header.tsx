@@ -122,7 +122,7 @@ export default function Header({ elections }: { elections: Election[] }) {
         <div className="absolute inset-0 bg-gradient-to-br from-ink-950/95 via-ink-900/85 to-brand-800/80" />
         <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-center px-6 py-12 text-center">
           <Link href="/" className="transition-opacity hover:opacity-90">
-            <Logo onDark />
+            <Logo />
           </Link>
           <h1 className="mt-8 text-4xl font-semibold tracking-tight text-white md:text-5xl">
             Encuestas del Perú

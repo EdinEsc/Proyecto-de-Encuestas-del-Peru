@@ -63,7 +63,7 @@ export default function AdminPage() {
             <div>
               <label className="text-sm font-medium text-ink-700 mb-1 block">Correo Electrónico</label>
               <input 
-                className="w-full rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-sm focus:border-black focus:ring-1 focus:ring-black outline-none transition-all" 
+                className="w-full rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-sm focus:border-black outline-none transition-all" 
                 placeholder="admin@votaciones.local" 
                 onChange={e => setEmail(e.target.value)} 
               />
@@ -71,7 +71,7 @@ export default function AdminPage() {
             <div>
               <label className="text-sm font-medium text-ink-700 mb-1 block">Contraseña</label>
               <input 
-                className="w-full rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-sm focus:border-black focus:ring-1 focus:ring-black outline-none transition-all" 
+                className="w-full rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-sm focus:border-black outline-none transition-all" 
                 type="password" 
                 placeholder="••••••••" 
                 onChange={e => setPassword(e.target.value)} 
@@ -246,7 +246,7 @@ function CreateElectionType({ onSave, refreshKey }: { onSave: (name: string) => 
       <h2 className="text-lg font-bold mb-4">Tipo de Elección</h2>
       <div className="space-y-4 flex-grow">
         <input 
-          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none" 
           placeholder="Ej: Presidencial, Regional" 
           value={name}
           onChange={e => setName(e.target.value)} 
@@ -281,12 +281,12 @@ function CreateRegion({ onSave, refreshKey }: { onSave: (d: any) => void, refres
       <h2 className="text-lg font-bold mb-4">Región / Ámbito</h2>
       <div className="space-y-4 flex-grow">
         <input 
-          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none" 
           placeholder="Nombre (Ej: Lima, Cusco)" 
           onChange={e => setD({ ...d, name: e.target.value })} 
         />
         <select 
-          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none" 
           onChange={e => setD({ ...d, level: e.target.value })}
         >
           <option value="country">País</option>
@@ -295,7 +295,7 @@ function CreateRegion({ onSave, refreshKey }: { onSave: (d: any) => void, refres
           <option value="district">Distrito</option>
         </select>
         <select 
-          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none" 
           onChange={e => setD({ ...d, parent_id: e.target.value || null })}
         >
           <option value="">Región Superior (Opcional)</option>
@@ -322,13 +322,13 @@ function CreateElection({ onSave, refreshKey }: { onSave: (d: any) => void, refr
       <h2 className="text-lg font-bold mb-4">Nueva Elección</h2>
       <div className="space-y-4 flex-grow">
         <input 
-          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none" 
           placeholder="Título de la Elección" 
           onChange={e => setD({ ...d, title: e.target.value })} 
         />
         <div className="grid grid-cols-2 gap-2">
           <select 
-            className="rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+            className="rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none" 
             onChange={e => setD({ ...d, election_type_id: e.target.value })}
             value={d.election_type_id || ""}
           >
@@ -336,7 +336,7 @@ function CreateElection({ onSave, refreshKey }: { onSave: (d: any) => void, refr
             {types.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
           <select 
-            className="rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+            className="rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none" 
             onChange={e => setD({ ...d, region_id: e.target.value || null })}
             value={d.region_id || ""}
           >
@@ -347,7 +347,7 @@ function CreateElection({ onSave, refreshKey }: { onSave: (d: any) => void, refr
         <div>
           <label className="text-xs font-bold tracking-wide text-ink-400 block mb-1">Fecha de Cierre</label>
           <input 
-            className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+            className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none" 
             type="datetime-local" 
             onChange={e => setD({ ...d, end_date: new Date(e.target.value).toISOString() })} 
           />
@@ -372,17 +372,17 @@ function CreateCandidate({ onSave, refreshKey }: { onSave: (d: any) => void, ref
       <h2 className="text-lg font-bold mb-4">Candidato</h2>
       <div className="space-y-4 flex-grow">
         <input 
-          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none" 
           placeholder="Nombre Completo" 
           onChange={e => setD({ ...d, name: e.target.value })} 
         />
         <input 
-          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none" 
           placeholder="URL de la Foto" 
           onChange={e => setD({ ...d, image_url: e.target.value })} 
         />
         <select 
-          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-black" 
+          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none" 
           onChange={e => setD({ ...d, election_id: e.target.value })}
           value={d.election_id || ""}
         >

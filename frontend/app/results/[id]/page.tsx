@@ -29,6 +29,8 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   }, [id]);
 
   const totalVotes = results?.total_votes || 0;
+  // Referencia para el ancho de las barras: el candidato más votado.
+  const topVotes = (results?.ranking || []).reduce((m, x) => Math.max(m, x.votes), 0);
 
   return (
     <div className={`min-h-screen bg-white dark:bg-ink-950 ${isMinimal ? "font-['Outfit',_sans-serif]" : ""}`}>
@@ -86,7 +88,8 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
 
         <div className="grid gap-16 max-w-4xl">
           {(results?.ranking || []).map((r, i) => {
-            const percentage = totalVotes > 0 ? (r.votes / totalVotes) * 100 : 0;
+            const fill = topVotes > 0 ? (r.votes / topVotes) * 100 : 0;
+            const isLeader = i === 0 && r.votes > 0;
             return (
               <div key={r.candidate_id} className="group">
                 <div className="flex justify-between items-end mb-6">
@@ -95,19 +98,30 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                       <img src={getImageUrl(r.image_url)} alt={r.name} className="rounded-lg w-full h-full object-cover" />
                     </div>
                     <div>
-                      <span className="text-xs font-semibold text-brand-600 tracking-[0.1em] mb-1 block">RANKING {i + 1}</span>
-                      <h3 className="text-3xl font-semibold tracking-tight text-black dark:text-white leading-none">{r.name}</h3>
+                      <span className="mb-1 flex items-center gap-2 text-xs font-semibold tracking-[0.1em] text-brand-600 dark:text-brand-400">
+                        RANKING {i + 1}
+                        {isLeader && <span className="badge-up">Líder</span>}
+                      </span>
+                      <h3 className="text-3xl font-semibold leading-none tracking-tight text-ink-900 dark:text-white">{r.name}</h3>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="text-5xl font-semibold tracking-tight text-black dark:text-white">{percentage.toFixed(1)}%</span>
-                    <p className="text-xs font-semibold text-ink-400 tracking-[0.1em] mt-1">{r.votes} VOTOS</p>
+                    <span className="text-5xl font-semibold tabular-nums tracking-tight text-ink-900 dark:text-white">
+                      {r.votes.toLocaleString()}
+                    </span>
+                    <p className="mt-1 text-xs font-semibold tracking-[0.1em] text-steel-400">
+                      {r.votes === 1 ? "VOTO" : "VOTOS"}
+                    </p>
                   </div>
                 </div>
-                <div className="rounded-xl h-3 bg-ink-50 dark:bg-ink-800 w-full overflow-hidden border border-ink-100 dark:border-ink-700">
-                  <div 
-                    className="h-full bg-brand-600 transition-all duration-1000 ease-out" 
-                    style={{ width: `${percentage}%` }}
+                <div className="h-3 w-full overflow-hidden rounded-xl border border-steel-200 bg-steel-100 dark:border-white/10 dark:bg-white/5">
+                  <div
+                    className={`h-full rounded-xl transition-all duration-1000 ease-out ${
+                      isLeader
+                        ? "bg-gradient-to-r from-brand-600 to-accent-500"
+                        : "bg-brand-600/45 dark:bg-brand-400/45"
+                    }`}
+                    style={{ width: `${fill}%` }}
                   ></div>
                 </div>
               </div>

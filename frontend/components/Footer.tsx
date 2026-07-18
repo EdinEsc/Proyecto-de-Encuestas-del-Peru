@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Logo from "@/components/Logo";
+import { LogoMark } from "@/components/Logo";
 
 export default function Footer() {
   return (
@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-12 md:grid-cols-4 lg:grid-cols-5">
           {/* Marca */}
           <div className="col-span-1 md:col-span-2">
-            <Logo />
+            <LogoMark className="h-14 w-14" />
             <p className="mt-6 max-w-sm text-sm leading-relaxed text-ink-500 dark:text-ink-300">
               Plataforma independiente dedicada a la transparencia democrática. Un espacio
               seguro para el ejercicio de la participación ciudadana digital.
@@ -56,7 +56,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-16 flex flex-col items-center justify-between gap-6 border-t border-ink-100 pt-8 text-sm text-ink-400 dark:border-white/10 dark:text-ink-400 md:flex-row">
-          <p>© {new Date().getFullYear()} Precisium — Proyecto independiente</p>
+          <p>© {new Date().getFullYear()} Precisium</p>
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-2">
               <span className="h-2 w-2 animate-pulse rounded-full bg-accent-500" />

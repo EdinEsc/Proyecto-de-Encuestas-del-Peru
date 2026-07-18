@@ -108,6 +108,7 @@ function AdminContent() {
   const [loading, setLoading] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const searchParams = useSearchParams();
   const module = searchParams.get("module") || "dashboard";
 
@@ -134,6 +135,8 @@ function AdminContent() {
     setDarkMode(isDark);
     if (isDark) document.documentElement.classList.add("dark");
     else document.documentElement.classList.remove("dark");
+
+    setSidebarCollapsed(localStorage.getItem("admin_sidebar_collapsed") === "true");
   }, []);
 
   const toggleTheme = () => {
@@ -277,8 +280,16 @@ function AdminContent() {
 
       {/* Sidebar: fijo en escritorio, deslizable en móvil */}
       {sidebarOpen && <div className="fixed inset-0 z-40 bg-ink-950/40 lg:hidden" onClick={() => setSidebarOpen(false)} />}
-      <div className={`fixed z-50 transition-transform duration-200 lg:sticky lg:top-0 lg:z-auto lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <Sidebar onToggleMobile={() => setSidebarOpen(false)} />
+      <div className={`fixed inset-y-0 left-0 z-50 transition-transform duration-200 lg:sticky lg:top-0 lg:z-auto lg:h-screen lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        <Sidebar
+          onToggleMobile={() => setSidebarOpen(false)}
+          collapsed={sidebarCollapsed}
+          onToggleCollapse={() => {
+            const next = !sidebarCollapsed;
+            setSidebarCollapsed(next);
+            try { localStorage.setItem("admin_sidebar_collapsed", String(next)); } catch {}
+          }}
+        />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -421,11 +432,43 @@ function AdminContent() {
 /* Piezas reutilizables                                              */
 /* ---------------------------------------------------------------- */
 
-function Stat({ label, value }: { label: string; value: string | number }) {
+/**
+ * Chip de color por tipo de proceso. Se escriben las clases completas porque
+ * Tailwind purga los nombres que no encuentra literales en el código.
+ */
+function typeChip(type?: string): string {
+  const t = (type || "").toLowerCase();
+  if (t.includes("presidencial")) return "chip-presidencial";
+  if (t.includes("regional")) return "chip-regional";
+  if (t.includes("provincial")) return "chip-provincial";
+  if (t.includes("distrital")) return "chip-distrital";
+  return "chip-otro";
+}
+
+/** Colores de acento de las tarjetas de resumen, uno por métrica. */
+const STAT_TONES = {
+  brand: { bar: "bg-brand-600", value: "text-brand-700 dark:text-brand-300" },
+  accent: { bar: "bg-accent-500", value: "text-accent-700 dark:text-accent-300" },
+  plum: { bar: "bg-plum-500", value: "text-plum-700 dark:text-plum-300" },
+  neon: { bar: "bg-neon-500", value: "text-neon-700 dark:text-neon-300" },
+  steel: { bar: "bg-steel-400", value: "text-steel-600 dark:text-steel-300" },
+} as const;
+
+function Stat({
+  label,
+  value,
+  tone = "steel",
+}: {
+  label: string;
+  value: string | number;
+  tone?: keyof typeof STAT_TONES;
+}) {
+  const t = STAT_TONES[tone];
   return (
-    <div className="panel px-5 py-4">
-      <p className="text-[13px] text-ink-500 dark:text-ink-400">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
+    <div className="panel relative overflow-hidden px-5 py-4">
+      <span className={`absolute inset-y-0 left-0 w-1 ${t.bar}`} aria-hidden="true" />
+      <p className="text-[13px] text-steel-500 dark:text-steel-400">{label}</p>
+      <p className={`mt-1 text-2xl font-semibold tabular-nums ${t.value}`}>{value}</p>
     </div>
   );
 }
@@ -610,10 +653,10 @@ function ElectionManagement({ onClose, onDeleteElection, onDeleteCandidate, refr
 
       {/* Resumen */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Stat label="Procesos" value={(allElections || []).length} />
-        <Stat label="Activos" value={activos} />
-        <Stat label="Ocultos en el portal" value={ocultos} />
-        <Stat label="Votos registrados" value={totalVotos.toLocaleString("es-PE")} />
+        <Stat label="Procesos" value={(allElections || []).length} tone="brand" />
+        <Stat label="Activos" value={activos} tone="accent" />
+        <Stat label="Ocultos en el portal" value={ocultos} tone="plum" />
+        <Stat label="Votos registrados" value={totalVotos.toLocaleString("es-PE")} tone="neon" />
       </div>
 
       {ocultos > 0 && (
@@ -684,7 +727,7 @@ function ElectionManagement({ onClose, onDeleteElection, onDeleteCandidate, refr
                       </td>
                       <td>
                         <p className="font-medium">{e.title}</p>
-                        <p className="text-[13px] text-ink-400">{e.election_type}</p>
+                        <span className={`mt-1 ${typeChip(e.election_type)}`}>{e.election_type}</span>
                       </td>
                       <td className="text-ink-600 dark:text-ink-300">{e.region_name || "Nacional"}</td>
                       <td>

@@ -56,7 +56,7 @@ export default function AdminPage() {
             <div>
               <label className="text-sm font-medium text-ink-700 dark:text-ink-300 mb-1 block">Correo Electrónico</label>
               <input 
-                className="w-full rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all dark:border-ink-800 dark:bg-ink-800/50 dark:text-white" 
+                className="w-full rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-sm focus:border-primary outline-none transition-all dark:border-ink-800 dark:bg-ink-800/50 dark:text-white" 
                 placeholder="admin@votaciones.local" 
                 onChange={e => setEmail(e.target.value)} 
               />
@@ -64,7 +64,7 @@ export default function AdminPage() {
             <div>
               <label className="text-sm font-medium text-ink-700 dark:text-ink-300 mb-1 block">Contraseña</label>
               <input 
-                className="w-full rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all dark:border-ink-800 dark:bg-ink-800/50 dark:text-white" 
+                className="w-full rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-sm focus:border-primary outline-none transition-all dark:border-ink-800 dark:bg-ink-800/50 dark:text-white" 
                 type="password" 
                 placeholder="••••••••" 
                 onChange={e => setPassword(e.target.value)} 
@@ -215,7 +215,7 @@ function CreateElectionType({ onSave }: { onSave: (name: string) => void }) {
       <h2 className="text-lg font-bold mb-4">Tipo de Elección</h2>
       <div className="space-y-4 flex-grow">
         <input 
-          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary dark:border-ink-800 dark:bg-ink-800 dark:text-white" 
+          className="w-full rounded-lg border border-ink-200 bg-ink-50 px-3 py-2 text-sm outline-none dark:border-ink-800 dark:bg-ink-800 dark:text-white" 
           placeholder="Ej: Presidencial, Regional" 
           onChange={e => setName(e.target.value)} 
         />

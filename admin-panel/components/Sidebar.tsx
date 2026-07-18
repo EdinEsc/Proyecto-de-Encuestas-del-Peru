@@ -32,7 +32,16 @@ const MODULOS: NavItem[] = [
   { id: "callao", label: "Callao", icon: icon(<polygon points="3 11 22 2 13 21 11 13 3 11" />) },
 ];
 
-export default function Sidebar({ onToggleMobile }: { onToggleMobile?: () => void }) {
+export default function Sidebar({
+  onToggleMobile,
+  collapsed = false,
+  onToggleCollapse,
+}: {
+  onToggleMobile?: () => void;
+  /** Modo compacto: solo iconos (escritorio) */
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
+}) {
   const searchParams = useSearchParams();
   const currentModule = searchParams.get("module") || "dashboard";
 
@@ -44,46 +53,83 @@ export default function Sidebar({ onToggleMobile }: { onToggleMobile?: () => voi
         href={`/?module=${item.id}`}
         onClick={onToggleMobile}
         aria-current={isActive ? "page" : undefined}
-        className={isActive ? "nav-item-active" : "nav-item-idle"}
+        title={collapsed ? item.label : undefined}
+        className={`${isActive ? "nav-item-active" : "nav-item-idle"} ${
+          collapsed ? "justify-center px-0" : ""
+        }`}
       >
-        <span className={`shrink-0 ${isActive ? "text-brand-600 dark:text-brand-300" : "text-ink-400"}`}>
+        <span className={`shrink-0 ${isActive ? "text-brand-600 dark:text-brand-300" : "text-steel-400"}`}>
           {item.icon}
         </span>
-        {item.label}
+        {!collapsed && item.label}
       </Link>
     );
   };
 
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-ink-100 bg-white dark:border-white/10 dark:bg-ink-900">
-      <div className="flex items-center gap-2.5 border-b border-ink-100 px-5 py-4 dark:border-white/10">
+    <aside
+      className={`flex h-full max-h-screen shrink-0 flex-col border-r border-ink-100 bg-white transition-[width] duration-200 dark:border-white/10 dark:bg-ink-900 ${
+        collapsed ? "w-[68px]" : "w-64"
+      }`}
+    >
+      <div
+        className={`flex items-center border-b border-ink-100 py-4 dark:border-white/10 ${
+          collapsed ? "justify-center px-2" : "gap-2.5 px-5"
+        }`}
+      >
         <LogoMark className="h-8 w-8 shrink-0" />
-        <div className="leading-tight">
-          <p className="text-sm font-semibold dark:text-white">Precisium</p>
-          <p className="text-[12px] text-ink-400">Administración</p>
-        </div>
+        {!collapsed && (
+          <div className="leading-tight">
+            <p className="text-sm font-semibold dark:text-white">Precisium</p>
+            <p className="text-[12px] text-steel-500">Administración</p>
+          </div>
+        )}
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 pb-4">
-        <p className="nav-section">Gestión</p>
+      <nav className={`flex-1 overflow-y-auto pb-4 ${collapsed ? "px-2" : "px-3"}`}>
+        {!collapsed && <p className="nav-section">Gestión</p>}
+        {collapsed && <div className="pt-4" />}
         <div className="space-y-0.5">{GESTION.map(renderItem)}</div>
 
-        <p className="nav-section">Catálogo</p>
+        {collapsed ? <div className="my-2 border-t border-ink-100 dark:border-white/10" /> : <p className="nav-section">Catálogo</p>}
         <div className="space-y-0.5">{CATALOGO.map(renderItem)}</div>
 
-        <p className="nav-section">Módulos por elección</p>
+        {collapsed ? <div className="my-2 border-t border-ink-100 dark:border-white/10" /> : <p className="nav-section">Módulos por elección</p>}
         <div className="space-y-0.5">{MODULOS.map(renderItem)}</div>
       </nav>
 
-      <div className="border-t border-ink-100 p-3 dark:border-white/10">
+      <div className={`space-y-1 border-t border-ink-100 p-3 dark:border-white/10 ${collapsed ? "px-2" : ""}`}>
+        {/* Colapsar / expandir: solo tiene sentido en escritorio */}
+        {onToggleCollapse && (
+          <button
+            onClick={onToggleCollapse}
+            title={collapsed ? "Expandir menú" : "Contraer menú"}
+            aria-label={collapsed ? "Expandir menú" : "Contraer menú"}
+            aria-expanded={!collapsed}
+            className={`nav-item-idle hidden w-full lg:flex ${collapsed ? "justify-center px-0" : ""}`}
+          >
+            <span className="shrink-0 text-steel-400">
+              {icon(
+                collapsed
+                  ? <><polyline points="13 17 18 12 13 7" /><polyline points="6 17 11 12 6 7" /></>
+                  : <><polyline points="11 17 6 12 11 7" /><polyline points="18 17 13 12 18 7" /></>
+              )}
+            </span>
+            {!collapsed && "Contraer menú"}
+          </button>
+        )}
+
         <button
           onClick={() => { localStorage.removeItem("admin_token"); window.location.reload(); }}
-          className="nav-item-idle w-full hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+          title={collapsed ? "Cerrar sesión" : undefined}
+          className={`nav-item-idle w-full hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400 ${
+            collapsed ? "justify-center px-0" : ""
+          }`}
         >
-          <span className="shrink-0 text-ink-400">
+          <span className="shrink-0 text-steel-400">
             {icon(<><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></>)}
           </span>
-          Cerrar sesión
+          {!collapsed && "Cerrar sesión"}
         </button>
       </div>
     </aside>

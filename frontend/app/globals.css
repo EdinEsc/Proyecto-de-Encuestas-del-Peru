@@ -27,9 +27,26 @@
     @apply bg-brand-600 text-white;
   }
 
-  /* Foco visible y consistente en toda la app */
+  /*
+    Foco discreto: sin anillo grueso ni resplandor. Un contorno fino de 2px
+    pegado al elemento, solo para quien navega con teclado (:focus-visible no
+    se dispara al hacer clic con el mouse).
+  */
   :focus-visible {
-    @apply outline-none ring-2 ring-brand-600 ring-offset-2 ring-offset-white dark:ring-offset-ink-950;
+    @apply outline-none;
+    outline: 2px solid theme("colors.brand.600");
+    outline-offset: 1px;
+    border-radius: 4px;
+  }
+
+  .dark :focus-visible {
+    outline-color: theme("colors.brand.400");
+  }
+
+  /* Nada de anillos por defecto al hacer clic */
+  :focus:not(:focus-visible) {
+    @apply outline-none;
+    box-shadow: none;
   }
 }
 
@@ -80,5 +97,68 @@
 
   .badge-closed {
     @apply badge bg-ink-100 text-ink-500 dark:bg-white/5 dark:text-ink-300;
+  }
+
+  /* Métricas positivas — verde neón, el único lugar donde aparece */
+  .badge-up {
+    @apply badge bg-neon-100 text-neon-800 dark:bg-neon-500/15 dark:text-neon-300;
+  }
+
+  /*
+    Chips de tipo de proceso. Cada categoría tiene su color para que la lista
+    se lea de un vistazo sin tener que leer el texto.
+  */
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider;
+  }
+
+  .chip-presidencial {
+    @apply chip bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-300;
+  }
+
+  .chip-regional {
+    @apply chip bg-plum-50 text-plum-700 dark:bg-plum-500/15 dark:text-plum-300;
+  }
+
+  .chip-distrital {
+    @apply chip bg-accent-50 text-accent-700 dark:bg-accent-500/15 dark:text-accent-300;
+  }
+
+  .chip-provincial {
+    @apply chip bg-neon-100 text-neon-800 dark:bg-neon-500/15 dark:text-neon-300;
+  }
+
+  .chip-otro {
+    @apply chip bg-steel-100 text-steel-600 dark:bg-white/10 dark:text-steel-300;
+  }
+
+  /*
+    Enlace de navegación con subrayado que crece de izquierda a derecha al
+    pasar el mouse. El pseudo-elemento evita que el texto se mueva.
+  */
+  .nav-underline {
+    @apply relative inline-block py-1 transition-colors duration-200;
+  }
+
+  .nav-underline::after {
+    content: "";
+    @apply absolute bottom-0 left-0 h-[2px] w-full origin-left scale-x-0 rounded-full
+           bg-gradient-to-r from-brand-600 to-accent-500 transition-transform duration-300 ease-out;
+  }
+
+  .nav-underline:hover::after,
+  .nav-underline:focus-visible::after {
+    @apply scale-x-100;
+  }
+
+  /* Estado activo: el subrayado ya está desplegado y no se retrae */
+  .nav-underline-active::after {
+    @apply scale-x-100;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-underline::after {
+      @apply transition-none;
+    }
   }
 }

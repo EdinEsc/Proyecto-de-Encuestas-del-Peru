@@ -18,8 +18,21 @@
     @apply font-semibold tracking-tight text-ink-900 dark:text-white;
   }
 
+  /* Foco discreto: contorno fino, sin anillo grueso ni resplandor. */
   :focus-visible {
-    @apply outline-none ring-2 ring-brand-600 ring-offset-2 ring-offset-white dark:ring-offset-ink-950;
+    @apply outline-none;
+    outline: 2px solid theme("colors.brand.600");
+    outline-offset: 1px;
+    border-radius: 4px;
+  }
+
+  .dark :focus-visible {
+    outline-color: theme("colors.brand.400");
+  }
+
+  :focus:not(:focus-visible) {
+    @apply outline-none;
+    box-shadow: none;
   }
 }
 
@@ -94,7 +107,7 @@
   .input, .select, .textarea {
     @apply w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900
            placeholder:text-ink-400 transition-colors
-           focus:border-brand-600 focus:outline-none focus:ring-1 focus:ring-brand-600
+           focus:border-brand-600 focus:outline-none
            dark:border-white/10 dark:bg-ink-950 dark:text-white dark:placeholder:text-ink-400;
   }
 
@@ -146,6 +159,31 @@
   .badge-closed {
     @apply badge border-ink-200 bg-ink-50 text-ink-500
            dark:border-white/10 dark:bg-white/5 dark:text-ink-300;
+  }
+
+  /* Chips de tipo de proceso: un color por categoría */
+  .chip {
+    @apply inline-flex items-center rounded-md px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-wider;
+  }
+
+  .chip-presidencial {
+    @apply chip bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-300;
+  }
+
+  .chip-regional {
+    @apply chip bg-plum-50 text-plum-700 dark:bg-plum-500/15 dark:text-plum-300;
+  }
+
+  .chip-distrital {
+    @apply chip bg-accent-50 text-accent-700 dark:bg-accent-500/15 dark:text-accent-300;
+  }
+
+  .chip-provincial {
+    @apply chip bg-neon-100 text-neon-800 dark:bg-neon-500/15 dark:text-neon-300;
+  }
+
+  .chip-otro {
+    @apply chip bg-steel-100 text-steel-600 dark:bg-white/10 dark:text-steel-300;
   }
 
   .badge-neutral {
