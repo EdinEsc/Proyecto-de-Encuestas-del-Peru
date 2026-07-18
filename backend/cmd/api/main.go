@@ -47,17 +47,18 @@ func main() {
 		Comments: commentRepo, Catalog: catalogRepo, VoteUC: voteUC, CommentUC: commentUC, AdminUC: adminUC,
 	}
 
-	frontendOrigin := os.Getenv("FRONTEND_ORIGIN")
+	frontendOrigin := strings.TrimSpace(os.Getenv("FRONTEND_ORIGIN"))
 	allowedOrigins := []string{"http://localhost:3000", "http://localhost:3001"}
-	if frontendOrigin != "" {
-		if frontendOrigin == "*" {
-			// Gin-CORS doesn't allow "*" with AllowCredentials: true, so we handle it by not setting specific origins or using AllowAllOrigins
-			// But for security, it's better to split actual origins
-			allowedOrigins = []string{"*"}
-		} else {
-			allowedOrigins = strings.Split(frontendOrigin, ",")
+	if frontendOrigin != "" && frontendOrigin != "*" {
+		
+		allowedOrigins = allowedOrigins[:0]
+		for _, o := range strings.Split(frontendOrigin, ",") {
+			if o = strings.TrimRight(strings.TrimSpace(o), "/"); o != "" {
+				allowedOrigins = append(allowedOrigins, o)
+			}
 		}
 	}
+	log.Printf("CORS: orígenes permitidos = %v (comodín: %t)", allowedOrigins, frontendOrigin == "*")
 
 	r := gin.Default()
 	

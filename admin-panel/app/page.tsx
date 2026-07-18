@@ -10,7 +10,13 @@ import Modal from "@/components/Modal";
 
 /** URL pública del frontend, para armar el link de votación de cada proceso. */
 function frontendUrl(): string {
-  if (process.env.NEXT_PUBLIC_FRONTEND_URL) return process.env.NEXT_PUBLIC_FRONTEND_URL;
+  // Se quita la barra final para no generar links con doble barra (".com//vote/…").
+  const configured = (process.env.NEXT_PUBLIC_FRONTEND_URL || "").trim().replace(/\/+$/, "");
+  if (configured) return configured;
+
+  // Sin variable configurada se deduce del propio origen del admin. Es solo un
+  // respaldo para desarrollo: en producción define NEXT_PUBLIC_FRONTEND_URL con
+  // el dominio propio, o los links saldrán con el dominio del hosting.
   if (typeof window === "undefined") return "";
   return window.location.origin
     .replace(":3001", ":3000")
