@@ -151,27 +151,31 @@ export default function ElectionPage({ params }: { params: Promise<{ id: string 
         </div>
       </div>
 
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-12">
+      <section className="grid grid-cols-2 gap-4 md:gap-12">
         {candidates?.map(c => {
           const stats = getCandidateStats(c.id);
           return (
-            <div key={c.id} className="rounded-xl group flex flex-col bg-white dark:bg-ink-800/50 border border-ink-100 dark:border-ink-700 overflow-hidden hover:border-brand-600 dark:hover:border-brand-500 transition-all duration-500">
-              <div className="relative h-80 bg-ink-50 dark:bg-ink-800 overflow-hidden">
+            <div key={c.id} className="rounded-xl group flex flex-col bg-white dark:bg-navy border border-mist dark:border-white/10 overflow-hidden hover:border-electric transition-all duration-500">
+              {/* Filo dorado: el acento de identidad, solo al pasar el mouse */}
+              <div className="h-1 w-full bg-gold opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+              <div className="relative h-44 sm:h-64 md:h-80 bg-mist dark:bg-navy-dark overflow-hidden">
                 <img src={getImageUrl(c.image_url)} alt={c.name} className="rounded-lg w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 transform group-hover:scale-105" />
-                <div className="absolute top-6 right-6 flex flex-col items-end gap-2">
-                  <span className="rounded-xl bg-black text-white px-4 py-2 text-[15px] font-semibold tracking-tight shadow-xl">
+                <div className="absolute top-2 right-2 md:top-6 md:right-6 flex flex-col items-end gap-1 md:gap-2">
+                  <span className="rounded-xl bg-navy text-white px-2 py-1 text-xs md:px-4 md:py-2 md:text-[15px] font-semibold tracking-tight shadow-xl">
                     {stats.percentage}%
                   </span>
-                  <span className="rounded-xl bg-brand-600 text-white px-3 py-1 text-xs font-bold tracking-wide">
+                  {/* Dorado con texto marino: el blanco sobre dorado no da contraste */}
+                  <span className="rounded-xl bg-gold text-navy px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-bold tracking-wide">
                     {stats.votes} Votos
                   </span>
                 </div>
               </div>
-              
-              <div className="p-10 flex flex-col flex-grow">
-                <h2 className="text-3xl font-semibold mb-6 tracking-tight text-black dark:text-white leading-none">{c.name}</h2>
-                <div className="h-0.5 w-10 bg-brand-600 mb-8"></div>
-                <p className="text-ink-600 dark:text-ink-400 text-sm leading-relaxed mb-10 flex-grow italic">
+
+              <div className="p-4 md:p-10 flex flex-col flex-grow">
+                <h2 className="text-lg md:text-3xl font-semibold mb-3 md:mb-6 tracking-tight text-navy dark:text-white leading-tight md:leading-none">{c.name}</h2>
+                <div className="h-0.5 w-10 bg-gold mb-4 md:mb-8"></div>
+                <p className="text-carbon/75 dark:text-ink-300 text-xs md:text-sm leading-relaxed mb-5 md:mb-10 flex-grow italic">
                   "{c.description || "Comprometido con el desarrollo transparente y el servicio íntegro a la ciudadanía."}"
                 </p>
 
@@ -180,18 +184,18 @@ export default function ElectionPage({ params }: { params: Promise<{ id: string 
                     href={c.button_url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="rounded-xl mb-8 inline-block w-full border border-ink-200 dark:border-ink-600 py-3 text-xs font-semibold tracking-wide text-center text-black dark:text-white hover:bg-black dark:hover:bg-brand-600 hover:text-white hover:border-black dark:hover:border-brand-600 transition-all"
+                    className="rounded-xl mb-4 md:mb-8 inline-block w-full border border-navy/20 dark:border-white/20 py-2.5 md:py-3 text-[11px] md:text-xs font-semibold tracking-wide text-center text-navy dark:text-white hover:bg-navy hover:text-white hover:border-navy dark:hover:bg-electric dark:hover:border-electric transition-all"
                   >
                     {c.button_text}
                   </a>
                 )}
 
-                <div className="flex flex-col gap-4 mt-auto">
+                <div className="flex flex-col gap-3 md:gap-4 mt-auto">
                   <button
-                    className={`w-full rounded-xl py-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+                    className={`w-full rounded-xl py-3 md:py-4 text-xs md:text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
                       voted || !election?.is_active
-                        ? "bg-ink-100 text-ink-500 dark:bg-white/10 dark:text-ink-300"
-                        : "bg-brand-600 text-white hover:bg-brand-700"
+                        ? "bg-mist text-carbon/50 dark:bg-white/10 dark:text-ink-300"
+                        : "bg-navy text-white hover:bg-navy-light dark:bg-electric dark:hover:bg-electric-hover"
                     }`}
                     disabled={voted || !election?.is_active || loading}
                     onClick={() => vote(c.id)}
@@ -205,7 +209,7 @@ export default function ElectionPage({ params }: { params: Promise<{ id: string 
                           : "Votar por este candidato"}
                   </button>
 
-                  <div className="pt-8 border-t border-ink-50 dark:border-ink-700">
+                  <div className="pt-4 md:pt-8 border-t border-mist dark:border-white/10">
                     <CandidateComments candidateId={c.id} />
                   </div>
                 </div>
@@ -229,7 +233,7 @@ export default function ElectionPage({ params }: { params: Promise<{ id: string 
       <div className="mt-40 text-center">
         <Link 
           href={`/results/${id}`} 
-          className="rounded-xl inline-flex items-center justify-center bg-black dark:bg-brand-600 text-white px-20 py-8 text-sm font-semibold tracking-[0.12em] transition-all hover:bg-brand-600 dark:hover:bg-brand-500"
+          className="rounded-xl inline-flex items-center justify-center bg-navy text-white px-20 py-8 text-sm font-semibold tracking-[0.12em] transition-colors hover:bg-navy-light"
         >
           Ver Escrutinio Detallado
         </Link>

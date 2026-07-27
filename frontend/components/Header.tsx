@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Election } from "@/lib/api";
+import { matchesCategory } from "@/lib/categories";
 import { useTheme } from "@/components/ThemeProvider";
 import Logo from "@/components/Logo";
 
@@ -16,8 +17,6 @@ type DropdownCategory = {
 
 export default function Header({ elections }: { elections: Election[] }) {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [visible, setVisible] = useState(true);
-  const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [search, setSearch] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -25,19 +24,6 @@ export default function Header({ elections }: { elections: Election[] }) {
   const { theme, toggleTheme } = useTheme();
   // Mismo criterio que la home: buscando sin categoría explícita, el activo es "Todos".
   const activeCategory = searchParams.get("category") || (searchParams.get("q") ? "all" : "presidencial");
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollPos = window.pageYOffset;
-      const isVisible = prevScrollPos > currentScrollPos || currentScrollPos < 10;
-
-      setPrevScrollPos(currentScrollPos);
-      setVisible(isVisible);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [prevScrollPos]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -74,21 +60,9 @@ export default function Header({ elections }: { elections: Election[] }) {
     router.push(urlFor(searchParams.get("category") || "all", ""));
   };
 
-  const regionales = elections.filter(e => (e.election_type || "").toLowerCase().includes("regional"));
-  const limaDistritos = elections.filter(e => {
-    const title = e.title.toLowerCase();
-    const type = (e.election_type || "").toLowerCase();
-    return type.includes("distrital") &&
-      !title.includes("callao") && !title.includes("ventanilla") &&
-      !title.includes("perla") && !title.includes("punta") &&
-      !title.includes("bellavista") && !title.includes("carmen de la legua");
-  });
-  const callaoElections = elections.filter(e => {
-    const title = e.title.toLowerCase();
-    return title.includes("callao") || title.includes("ventanilla") ||
-      title.includes("perla") || title.includes("punta") ||
-      title.includes("bellavista") || title.includes("carmen de la legua");
-  });
+  const regionales = elections.filter(e => matchesCategory(e, "regionales"));
+  const limaDistritos = elections.filter(e => matchesCategory(e, "lima_distritos"));
+  const callaoElections = elections.filter(e => matchesCategory(e, "callao"));
 
   const categories: DropdownCategory[] = [
     { id: "all", label: "Todos", hasDropdown: false },
@@ -99,19 +73,51 @@ export default function Header({ elections }: { elections: Election[] }) {
     { id: "callao", label: "Callao", hasDropdown: true, items: callaoElections },
   ];
 
-  const linkClass = (id: string) =>
-    `text-[15px] font-medium transition-colors ${
-      activeCategory === id
-        ? "text-brand-600 dark:text-brand-400"
-        : "text-ink-600 hover:text-ink-900 dark:text-ink-300 dark:hover:text-white"
-    }`;
+  // Pastillas de navegación: el estado activo se lee por el relleno, no por el
+  // color del texto, que a esta escala se perdía entre las demás categorías.
+  const pillBase = "flex items-center rounded-xl text-sm font-medium transition-colors";
+  const pillState = (id: string) =>
+    activeCategory === id
+      ? "bg-navy text-white dark:bg-electric"
+      : "text-carbon hover:bg-mist hover:text-navy dark:text-ink-300 dark:hover:bg-white/10 dark:hover:text-white";
+
+  /*
+    Las filas del desplegable se pintan en dos sitios: anclado bajo la pastilla
+    en escritorio, y como bloque bajo la barra en móvil (allí la barra tiene
+    scroll horizontal, y un contenedor con overflow recortaría el panel).
+  */
+  const dropdownItems = (c: DropdownCategory) => (
+    <>
+      {/* El filtro por categoría se conserva desde aquí */}
+      <Link
+        href={urlFor(c.id, search)}
+        onClick={() => setOpenDropdown(null)}
+        className="flex items-center justify-between gap-6 border-b border-mist py-3 pl-4 pr-6 text-[15px] font-semibold text-electric transition-colors hover:bg-mist dark:border-white/10 dark:hover:bg-white/10"
+      >
+        <span>Ver todos</span>
+        <span className="text-xs font-medium text-carbon/50 dark:text-white/50">{c.items!.length}</span>
+      </Link>
+      {/*
+        Los nombres largos envuelven en dos líneas: el panel ya no puede crecer
+        a lo ancho, así que recortarlos sería perder el nombre.
+      */}
+      {c.items!.map((election) => (
+        <Link
+          key={election.id}
+          href={`/election/${election.id}`}
+          onClick={() => setOpenDropdown(null)}
+          className="block py-3 pl-4 pr-6 text-[15px] leading-snug text-carbon transition-colors hover:bg-mist hover:text-navy dark:text-ink-200 dark:hover:bg-white/10 dark:hover:text-white"
+        >
+          {election.region_name || election.title}
+        </Link>
+      ))}
+    </>
+  );
+
+  const openCategory = categories.find((c) => c.id === openDropdown);
 
   return (
-    <header
-      className={`sticky top-0 z-[100] w-full border-b border-ink-100 bg-white/90 backdrop-blur-md transition-transform duration-500 ease-in-out dark:border-white/10 dark:bg-ink-950/90 ${
-        visible ? "translate-y-0" : "-translate-y-full"
-      }`}
-    >
+    <header className="relative z-40 w-full border-b border-ink-100 bg-white dark:border-white/10 dark:bg-ink-950">
       {/* Hero */}
       <div className="relative overflow-hidden">
         <img
@@ -124,10 +130,7 @@ export default function Header({ elections }: { elections: Election[] }) {
           <Link href="/" className="transition-opacity hover:opacity-90">
             <Logo />
           </Link>
-          <h1 className="mt-8 text-4xl font-semibold tracking-tight text-white md:text-5xl">
-            Encuestas del Perú
-          </h1>
-          <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-white/70">
+          <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-white/70">
             Participación ciudadana medida con rigor. Consulta procesos electorales,
             emite tu voto y sigue los resultados en tiempo real.
           </p>
@@ -137,53 +140,77 @@ export default function Header({ elections }: { elections: Election[] }) {
       {/* Navegación */}
       <div className="mx-auto max-w-7xl px-6 py-4">
         <div className="flex flex-col items-center justify-between gap-4 lg:flex-row">
-          <nav ref={dropdownRef} className="flex flex-wrap justify-center gap-x-7 gap-y-3 lg:justify-start">
-            {categories.map((c) => {
-              if (!c.hasDropdown) {
-                return (
-                  <Link key={c.id} href={urlFor(c.id, search)} className={linkClass(c.id)}>
-                    {c.label}
-                  </Link>
-                );
-              }
-
-              const isOpen = openDropdown === c.id;
-
-              return (
-                <div key={c.id} className="relative">
-                  <div className="flex items-center gap-1">
-                    <Link href={urlFor(c.id, search)} className={linkClass(c.id)}>
+          <div ref={dropdownRef} className="w-full lg:w-auto">
+            {/*
+              Móvil: una sola línea con scroll horizontal (antes se partía en
+              tres filas desordenadas). Escritorio: rejilla de 3 columnas, o
+              sea dos filas de tres.
+            */}
+            {/*
+              Sin justify-items-start las pastillas se estiran a la columna, y
+              como las columnas son iguales todas acaban del mismo ancho. Eso
+              es lo que permite que el panel calce exacto con su pastilla.
+            */}
+            <nav className="scrollbar-none -mx-1 flex flex-nowrap items-center gap-3 overflow-x-auto px-1 pb-1 lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-2 lg:overflow-x-visible lg:px-0 lg:pb-0">
+              {categories.map((c) => {
+                if (!c.hasDropdown) {
+                  return (
+                    <Link
+                      key={c.id}
+                      href={urlFor(c.id, search)}
+                      className={`${pillBase} ${pillState(c.id)} shrink-0 whitespace-nowrap px-5 py-2.5 lg:w-full`}
+                    >
                       {c.label}
                     </Link>
+                  );
+                }
+
+                const isOpen = openDropdown === c.id;
+
+                return (
+                  <div key={c.id} className="relative shrink-0 lg:w-full">
+                    {/*
+                      Toda la pastilla abre el desplegable. Antes el nombre era
+                      un enlace y solo la flecha desplegaba, así que hacer clic
+                      en el texto parecía no hacer nada.
+
+                      Abierto, el botón pierde el redondeo inferior para que la
+                      lista se lea como una sola pieza, igual que un <select>.
+                    */}
                     <button
                       onClick={() => setOpenDropdown(isOpen ? null : c.id)}
-                      aria-label={`Ver ${c.label}`}
                       aria-expanded={isOpen}
-                      className="rounded-md p-1 text-ink-400 transition-colors hover:text-brand-600 dark:hover:text-brand-400"
+                      className={`${pillBase} ${pillState(c.id)} gap-2 whitespace-nowrap px-5 py-2.5 lg:w-full lg:justify-between ${isOpen ? "lg:rounded-b-none" : ""}`}
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}><polyline points="6 9 12 15 18 9" /></svg>
+                      {c.label}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 opacity-60 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}><polyline points="6 9 12 15 18 9" /></svg>
                     </button>
-                  </div>
 
-                  {isOpen && c.items && c.items.length > 0 && (
-                    <div className="absolute left-0 top-full z-[110] mt-3 max-h-[420px] min-w-[300px] overflow-y-auto rounded-2xl border border-ink-100 bg-white p-2 shadow-card-hover dark:border-white/10 dark:bg-ink-900">
-                      {c.items.map((election) => (
-                        <Link
-                          key={election.id}
-                          href={`/election/${election.id}`}
-                          onClick={() => setOpenDropdown(null)}
-                          className="group flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-ink-700 transition-colors hover:bg-brand-50 hover:text-brand-700 dark:text-ink-200 dark:hover:bg-white/5 dark:hover:text-white"
-                        >
-                          <span>{election.region_name || election.title}</span>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-ink-300 transition-transform group-hover:translate-x-0.5 group-hover:text-brand-600"><polyline points="9 18 15 12 9 6"/></svg>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </nav>
+                    {/*
+                      w-full: el panel mide exactamente lo que la pastilla, que
+                      es lo que hace que se lean como una sola pieza. Antes era
+                      w-max y sobresalía por la derecha.
+                    */}
+                    {isOpen && c.items && c.items.length > 0 && (
+                      <div className="scroll-slim absolute left-0 top-full z-[110] hidden max-h-[420px] w-full overflow-y-auto overflow-x-hidden rounded-b-lg border border-navy/15 bg-white shadow-lg dark:border-white/15 dark:bg-navy lg:block">
+                        {dropdownItems(c)}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </nav>
+
+            {/*
+              Panel en móvil: va fuera del carrusel porque overflow-x recorta
+              cualquier hijo posicionado en absoluto.
+            */}
+            {openCategory?.items && openCategory.items.length > 0 && (
+              <div className="scroll-slim mt-2 max-h-[320px] overflow-y-auto rounded-lg border border-navy/15 bg-white shadow-lg dark:border-white/15 dark:bg-navy lg:hidden">
+                {dropdownItems(openCategory)}
+              </div>
+            )}
+          </div>
 
           <div className="flex w-full items-center gap-3 lg:w-auto">
             <form onSubmit={handleSearch} className="relative flex-1 lg:w-80">

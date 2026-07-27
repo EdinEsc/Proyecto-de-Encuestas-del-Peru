@@ -55,7 +55,7 @@ export default function ResultBars({ results }: { results: Results }) {
                     {r.name}
                     {isWinner && (
                       <span className="badge-up">
-                        <span className="h-1.5 w-1.5 rounded-full bg-neon-500" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-gold" />
                         Líder
                       </span>
                     )}

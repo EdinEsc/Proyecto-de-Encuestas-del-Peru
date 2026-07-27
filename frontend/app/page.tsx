@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { api, Election } from "@/lib/api";
-import CategoryNav from "@/components/CategoryNav";
+import { matchesCategory } from "@/lib/categories";
 import { electionTone, toneBar, toneText, toneButton, toneChip } from "@/lib/electionStyle";
 
 export const dynamic = "force-dynamic";
@@ -26,21 +26,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
       return false;
     }
 
-    // Filtro por categoría
-    switch (category) {
-      case "presidencial":
-        return type.includes("presidencial") || title.includes("presidencial");
-      case "regionales":
-        return type.includes("regional") || title.includes("regional");
-      case "lima":
-        return title.includes("alcaldía de lima") || title.includes("lima");
-      case "lima_distritos":
-        return type.includes("distrital") && !title.includes("callao") && !title.includes("ventanilla") && !title.includes("perla") && !title.includes("punta") && !title.includes("bellavista") && !title.includes("carmen de la legua");
-      case "callao":
-        return title.includes("callao") || title.includes("ventanilla") || title.includes("perla") || title.includes("punta") || title.includes("bellavista") || title.includes("carmen de la legua");
-      default:
-        return true;
-    }
+    return matchesCategory(e, category);
   });
 
   return (
@@ -58,7 +44,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
           </span>
         </div>
 
-        <section className="grid gap-4">
+        <section className="grid gap-4 sm:grid-cols-2">
           {filteredElections.length > 0 ? (
             filteredElections.map(e => {
               const tone = electionTone(e.election_type);
@@ -66,7 +52,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
                 <Link
                   href={`/election/${e.id}`}
                   key={e.id}
-                  className="card-interactive group relative flex flex-col justify-between gap-6 overflow-hidden p-6 pl-7 md:flex-row md:items-center"
+                  className="card-interactive group relative flex h-full flex-col gap-6 overflow-hidden p-6 pl-7"
                 >
                   {/* Franja de color según el tipo de proceso */}
                   <span
@@ -75,7 +61,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
                   />
 
                   <div className="min-w-0">
-                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <div className="mb-3 flex flex-wrap items-center gap-2">
                       <span className={toneChip[tone]}>{e.election_type}</span>
                       <span className={e.is_active ? "badge-live" : "badge-closed"}>
                         {e.is_active && <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent-500" />}
@@ -87,12 +73,17 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
                     </h3>
                   </div>
 
-                  <div className="flex shrink-0 items-center gap-6">
-                    <div className="text-right">
+                  {/*
+                    mt-auto ancla el pie abajo: en una fila las tarjetas se
+                    estiran a la misma altura y los ámbitos quedan alineados
+                    aunque un título ocupe dos líneas y el otro una.
+                  */}
+                  <div className="mt-auto flex items-end justify-between gap-4 border-t border-ink-100 pt-4 dark:border-white/10">
+                    <div className="min-w-0">
                       <p className="text-xs font-medium text-steel-400">Ámbito</p>
-                      <p className="mt-0.5 text-sm font-semibold">{e.region_name || "Nacional"}</p>
+                      <p className="mt-0.5 truncate text-sm font-semibold">{e.region_name || "Nacional"}</p>
                     </div>
-                    <span className={`flex h-11 w-11 items-center justify-center rounded-xl border border-steel-200 text-steel-500 transition-colors dark:border-white/10 dark:text-steel-300 ${toneButton[tone]}`}>
+                    <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-steel-200 text-steel-500 transition-colors dark:border-white/10 dark:text-steel-300 ${toneButton[tone]}`}>
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </span>
                   </div>
@@ -100,7 +91,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
               );
             })
           ) : (
-            <div className="card flex flex-col items-center gap-3 p-16 text-center">
+            <div className="card flex flex-col items-center gap-3 p-16 text-center sm:col-span-2">
               <span className="flex h-12 w-12 items-center justify-center rounded-full bg-ink-100 text-ink-400 dark:bg-white/5">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               </span>

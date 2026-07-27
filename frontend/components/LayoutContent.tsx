@@ -4,7 +4,6 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import CookieConsent from "@/components/CookieConsent";
 import { Election } from "@/lib/api";
 
 export default function LayoutContent({ children, elections }: { children: React.ReactNode; elections: Election[] }) {
@@ -26,7 +25,6 @@ export default function LayoutContent({ children, elections }: { children: React
         {children}
       </main>
       <Footer />
-      <CookieConsent />
     </>
   );
 }

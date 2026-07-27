@@ -4,9 +4,9 @@
 
 @layer base {
   :root {
-    --brand: #2563eb;
-    --accent: #00c9a7;
-    --ink: #0b132b;
+    --brand: #1677ff;
+    --accent: #f5c518;
+    --ink: #0b1f3a;
   }
 
   body {
@@ -99,9 +99,9 @@
     @apply badge bg-ink-100 text-ink-500 dark:bg-white/5 dark:text-ink-300;
   }
 
-  /* Métricas positivas — verde neón, el único lugar donde aparece */
+  /* Métricas positivas — dorado de identidad */
   .badge-up {
-    @apply badge bg-neon-100 text-neon-800 dark:bg-neon-500/15 dark:text-neon-300;
+    @apply badge bg-gold-soft text-accent-700 dark:bg-gold/15 dark:text-gold;
   }
 
   /*
@@ -113,23 +113,23 @@
   }
 
   .chip-presidencial {
-    @apply chip bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-300;
+    @apply chip bg-navy/10 text-navy dark:bg-white/10 dark:text-white;
   }
 
   .chip-regional {
-    @apply chip bg-plum-50 text-plum-700 dark:bg-plum-500/15 dark:text-plum-300;
-  }
-
-  .chip-distrital {
-    @apply chip bg-accent-50 text-accent-700 dark:bg-accent-500/15 dark:text-accent-300;
+    @apply chip bg-electric-soft text-[#0E5FD8] dark:bg-electric/15 dark:text-brand-300;
   }
 
   .chip-provincial {
-    @apply chip bg-neon-100 text-neon-800 dark:bg-neon-500/15 dark:text-neon-300;
+    @apply chip bg-gold-soft text-navy dark:bg-gold/20 dark:text-gold;
+  }
+
+  .chip-distrital {
+    @apply chip bg-steel-100 text-steel-700 dark:bg-white/10 dark:text-steel-300;
   }
 
   .chip-otro {
-    @apply chip bg-steel-100 text-steel-600 dark:bg-white/10 dark:text-steel-300;
+    @apply chip bg-mist text-steel-600 dark:bg-white/5 dark:text-steel-300;
   }
 
   /*
@@ -160,5 +160,46 @@
     .nav-underline::after {
       @apply transition-none;
     }
+  }
+
+  /*
+    Barra de scroll fina. La nativa de Windows mide ~17px y dentro de un panel
+    angosto se come el diseño.
+  */
+  .scroll-slim {
+    scrollbar-width: thin;
+    scrollbar-color: theme("colors.steel.300") transparent;
+  }
+
+  .scroll-slim::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scroll-slim::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scroll-slim::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background: theme("colors.steel.300");
+  }
+
+  .dark .scroll-slim {
+    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+  }
+
+  .dark .scroll-slim::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  /* Carrusel de categorías en móvil: se desliza, pero sin barra a la vista */
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 }

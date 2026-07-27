@@ -46,12 +46,12 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
       <div className="max-w-6xl mx-auto px-6 py-20">
         <div className="mb-20">
           {!isMinimal ? (
-            <Link href={`/election/${id}`} className="text-xs font-bold tracking-wide text-ink-600 dark:text-ink-400 hover:text-black dark:hover:text-white mb-12 inline-block transition-colors">
+            <Link href={`/election/${id}`} className="mb-12 inline-flex items-center gap-2 rounded-xl border border-navy/20 px-4 py-2.5 text-sm font-semibold text-navy transition-colors hover:bg-navy hover:text-white dark:border-white/20 dark:text-white dark:hover:bg-white/10">
               ← Volver a la votación
             </Link>
           ) : (
-            <button onClick={() => window.history.back()} className="text-xs font-semibold tracking-[0.12em] text-brand-600 mb-12 hover:text-black transition-colors">
-              ← REGRESAR A VOTACIÓN
+            <button onClick={() => window.history.back()} className="mb-12 inline-flex items-center gap-2 rounded-xl border border-navy/20 px-4 py-2.5 text-sm font-semibold text-navy transition-colors hover:bg-navy hover:text-white dark:border-white/20 dark:text-white dark:hover:bg-white/10">
+              ← Regresar a la votación
             </button>
           )}
 
