@@ -16,7 +16,13 @@ import { api, Election } from "@/lib/api";
 import { Suspense } from "react";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const elections = await api<Election[]>("/elections").catch(() => []) || [];
+  /*
+    Esta lista alimenta los desplegables del header y se pedía en cada visita a
+    cualquier página. Con revalidate se consulta como mucho una vez por minuto
+    para todos los visitantes; el precio es que una elección recién creada en el
+    panel tarda hasta 60 s en aparecer en el menú.
+  */
+  const elections = await api<Election[]>("/elections", { revalidate: 60 }).catch(() => []) || [];
 
   return (
     <html lang="es" className="scroll-smooth" suppressHydrationWarning>

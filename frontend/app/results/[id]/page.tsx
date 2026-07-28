@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, useCallback, use } from "react";
 import Link from "next/link";
 import { api, Results, Election, getImageUrl } from "@/lib/api";
+import { usePolling } from "@/lib/usePolling";
 import { useSearchParams } from "next/navigation";
 import ResultBars from "@/components/ResultBars";
 
@@ -14,19 +15,24 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   const [election, setElection] = useState<Election | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   
-  useEffect(() => {
-    if (!id) return;
-    const load = () => {
-      api<Results>(`/results/${id}`).then(data => {
+  const loadResults = useCallback(() => {
+    api<Results>(`/results/${id}`)
+      .then(data => {
         setResults(data);
         setLastUpdated(new Date());
-      });
-      api<Election>(`/elections/${id}`).then(setElection).catch(err => console.error(err));
-    };
-    load();
-    const timer = setInterval(load, 5000);
-    return () => clearInterval(timer);
+      })
+      .catch(err => console.error(err));
   }, [id]);
+
+  // La elección (título, estado) no cambia mientras se mira la pantalla: se
+  // pide una sola vez. Antes se recargaba junto con los resultados cada 5 s.
+  useEffect(() => {
+    if (!id) return;
+    api<Election>(`/elections/${id}`).then(setElection).catch(err => console.error(err));
+    loadResults();
+  }, [id, loadResults]);
+
+  usePolling(loadResults, 30000, Boolean(id));
 
   const totalVotes = results?.total_votes || 0;
   // Referencia para el ancho de las barras: el candidato más votado.

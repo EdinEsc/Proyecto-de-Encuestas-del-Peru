@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useRef, use } from "react";
+import { useEffect, useState, useCallback, use } from "react";
 import Link from "next/link";
 import { api, Candidate, Election, getBrowserId, getImageUrl } from "@/lib/api";
+import { usePolling } from "@/lib/usePolling";
 import CandidateComments from "@/components/CandidateComments";
 import LiveRanking from "@/components/LiveRanking";
 import Toast from "@/components/Toast";
@@ -25,20 +26,24 @@ export default function ElectionPage({ params }: { params: Promise<{ id: string 
   const [loading, setLoading] = useState(false);
   const [voted, setVoted] = useState(false);
 
+  const loadResults = useCallback(() => {
+    api<any>(`/results/${id}`).then(setResults).catch(err => console.error(err));
+  }, [id]);
+
+  /*
+    Carga inicial. La elección y sus candidatos no cambian mientras alguien vota,
+    así que se piden una sola vez; antes los tres endpoints se repetían cada 30 s.
+  */
   useEffect(() => {
     if (!id) return;
     setVoted(localStorage.getItem(`voted:election:${id}`) === "true");
-    
-    const fetchData = () => {
-      api<Election>(`/elections/${id}`).then(setElection).catch(err => console.error(err));
-      api<Candidate[]>(`/elections/${id}/candidates`).then(data => setCandidates(data || [])).catch(err => console.error(err));
-      api<any>(`/results/${id}`).then(setResults).catch(err => console.error(err));
-    };
+    api<Election>(`/elections/${id}`).then(setElection).catch(err => console.error(err));
+    api<Candidate[]>(`/elections/${id}/candidates`).then(data => setCandidates(data || [])).catch(err => console.error(err));
+    loadResults();
+  }, [id, loadResults]);
 
-    fetchData();
-    const interval = setInterval(fetchData, 30000); // Update every 30s
-    return () => clearInterval(interval);
-  }, [id]);
+  // Solo los resultados se refrescan, y solo con la pestaña a la vista.
+  usePolling(loadResults, 30000, Boolean(id));
 
   async function vote(candidate_id: string) {
     if (voted || !election?.is_active) return;

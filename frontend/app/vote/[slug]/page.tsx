@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, useCallback, use } from "react";
 import { api, Candidate, Election, getBrowserId, getImageUrl } from "@/lib/api";
+import { usePolling } from "@/lib/usePolling";
 import CandidateComments from "@/components/CandidateComments";
 import LiveRanking from "@/components/LiveRanking";
 import HeaderHero from "@/components/HeaderHero";
@@ -33,14 +34,13 @@ export default function VotePage({ params }: { params: Promise<{ slug: string }>
       .catch(() => setError(true));
   }, [slug]);
 
-  // Auto-refresh results
-  useEffect(() => {
+  // Auto-refresh de resultados, solo con la pestaña a la vista
+  const loadResults = useCallback(() => {
     if (!election) return;
-    const interval = setInterval(() => {
-      api<any>(`/results/${election.id}`).then(setResults).catch(() => {});
-    }, 30000);
-    return () => clearInterval(interval);
+    api<any>(`/results/${election.id}`).then(setResults).catch(() => {});
   }, [election]);
+
+  usePolling(loadResults, 30000, Boolean(election));
 
   async function vote(candidate_id: string) {
     if (!election || voted || !election.is_active) return;

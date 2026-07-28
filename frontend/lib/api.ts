@@ -52,14 +52,27 @@ export type CommentPage = {
   total: number;
 };
 
-export async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
+/*
+  `revalidate` (en segundos) cachea la respuesta en el servidor de Next: durante
+  ese lapso las visitas se sirven de la caché y no se toca la API ni la base.
+  Sin él se mantiene el comportamiento de siempre, sin caché, que es lo correcto
+  para votos y resultados.
+*/
+export async function api<T>(
+  path: string,
+  options: RequestInit & { revalidate?: number } = {}
+): Promise<T> {
+  const { revalidate, ...init } = options;
+
   const res = await fetch(`${API_URL}${path}`, {
-    ...options,
+    ...init,
     headers: {
       "Content-Type": "application/json",
-      ...(options.headers || {})
+      ...(init.headers || {})
     },
-    cache: "no-store",
+    ...(revalidate !== undefined
+      ? { next: { revalidate } }
+      : { cache: "no-store" as const }),
   });
 
   const data = await res.json().catch(() => null);
