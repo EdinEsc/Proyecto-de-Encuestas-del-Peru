@@ -2,11 +2,119 @@
 
 import { useEffect, useState, Suspense, useMemo, Fragment } from "react";
 import { useSearchParams } from "next/navigation";
-import { api, authHeaders, uploadImage, getImageUrl, Election, Candidate } from "@/lib/api";
+import { api, authHeaders, uploadImage, getImageUrl, sortRanking, Election, Candidate, ResultItem } from "@/lib/api";
 import Sidebar from "@/components/Sidebar";
 import { LogoMark } from "@/components/Logo";
 import ToastContainer, { ToastMessage, ToastType } from "@/components/Toast";
 import Modal from "@/components/Modal";
+import { downloadXlsx, slugForFile, Cell, XS } from "@/lib/xlsx";
+
+/** Texto por defecto de la opción neutral de una encuesta. */
+const UNDECIDED_NAME = "No sabe / No opina";
+
+/**
+ * Exporta el conteo de un proceso a Excel para analizarlo fuera del panel.
+ * Lleva una ficha con los datos del proceso y, debajo, una tabla con una fila
+ * por candidato: el líder va resaltado en ámbar y "No sabe / No opina" en gris,
+ * para que se distinga de un vistazo que no compite por el primer puesto.
+ */
+function exportResultsToExcel(election: any, results: { total_votes?: number; ranking?: ResultItem[] } | undefined) {
+  const ranking = sortRanking(results?.ranking);
+  const total = results?.total_votes ?? 0;
+  const COLUMNS = 5;
+
+  /** Fila de la ficha: etiqueta con fondo + valor combinado hasta la última columna. */
+  const meta = (label: string, value: string | number, numeric = false): Cell[] => [
+    { v: label, s: XS.metaLabel },
+    { v: value, s: numeric ? XS.metaValueNum : XS.metaValue },
+    { v: "", s: numeric ? XS.metaValueNum : XS.metaValue },
+    { v: "", s: numeric ? XS.metaValueNum : XS.metaValue },
+    { v: "", s: numeric ? XS.metaValueNum : XS.metaValue },
+  ];
+
+  const metaRows: Cell[][] = [
+    meta("Categoría", election.election_type || "—"),
+    meta("Ámbito", election.region_name || "Nacional"),
+    meta("Estado", election.is_active ? "Activo" : "Cerrado"),
+    meta("Cierre", election.end_date ? new Date(election.end_date).toLocaleString("es-PE") : "—"),
+    meta("Generado", new Date().toLocaleString("es-PE")),
+    meta("Total de votos", total, true),
+  ];
+
+  const rows: Cell[][] = [
+    // La banda de título se combina en la fila 1; el resto de celdas van con el
+    // mismo estilo para que el color llegue hasta el borde del rango.
+    Array.from({ length: COLUMNS }, (_, i) => ({ v: i === 0 ? "REPORTE DE VOTACIÓN" : "", s: XS.title })),
+    Array.from({ length: COLUMNS }, (_, i) => ({ v: i === 0 ? election.title : "", s: XS.subtitle })),
+    [],
+    ...metaRows,
+    [],
+    ["Posición", "Candidato", "Votos", "Porcentaje (%)", "Tipo de opción"].map(h => ({ v: h, s: XS.header })),
+  ];
+
+  const headerRow = rows.length; // 1-based: la cabecera es la última fila añadida.
+  const metaFirstRow = 4; // tras título, subtítulo y una fila en blanco.
+  // El valor de cada dato de la ficha ocupa de la columna B a la E.
+  const metaMerges = metaRows.map((_, i) => `B${metaFirstRow + i}:E${metaFirstRow + i}`);
+
+  // El líder es el primer candidato con votos que no sea la opción neutral.
+  const leaderId = ranking.find(r => !r.is_undecided && r.votes > 0)?.candidate_id;
+
+  ranking.forEach((r, i) => {
+    // El porcentaje va como número para poder graficarlo o sumarlo en Excel.
+    const percentage = total > 0 ? Number(((r.votes / total) * 100).toFixed(2)) : 0;
+    const tone = r.is_undecided
+      ? { text: XS.neutral, center: XS.neutralCenter, num: XS.neutralNum, pct: XS.neutralPct }
+      : r.candidate_id === leaderId
+        ? { text: XS.leader, center: XS.leaderCenter, num: XS.leaderNum, pct: XS.leaderPct }
+        : { text: XS.cell, center: XS.cellCenter, num: XS.cellNum, pct: XS.cellPct };
+
+    rows.push([
+      { v: r.is_undecided ? "—" : i + 1, s: tone.center },
+      { v: r.name, s: tone.text },
+      { v: r.votes, s: tone.num },
+      { v: percentage, s: tone.pct },
+      { v: r.is_undecided ? UNDECIDED_NAME : r.candidate_id === leaderId ? "Candidato (líder)" : "Candidato", s: tone.text },
+    ]);
+  });
+
+  if (ranking.length === 0) {
+    rows.push([
+      { v: "—", s: XS.cellCenter },
+      { v: "Sin candidatos registrados", s: XS.cell },
+      { v: 0, s: XS.cellNum },
+      { v: 0, s: XS.cellPct },
+      { v: "—", s: XS.cell },
+    ]);
+  }
+
+  const lastDataRow = rows.length;
+
+  rows.push([
+    { v: "", s: XS.totalCenter },
+    { v: "TOTAL", s: XS.total },
+    { v: total, s: XS.totalNum },
+    { v: total > 0 ? 100 : 0, s: XS.totalPct },
+    { v: "", s: XS.total },
+  ]);
+
+  rows.push([]);
+  rows.push([{ v: "«No sabe / No opina» se lista siempre al final: no compite por el primer puesto.", s: XS.note }]);
+
+  downloadXlsx(`votos-${slugForFile(election.title)}`, {
+    name: "Votos",
+    rows,
+    // La columna A carga con dos papeles: etiquetas de la ficha ("Total de
+    // votos") y la posición del ranking. 16 es el ancho que no corta la etiqueta
+    // más larga sin dejar la columna de posiciones desproporcionada.
+    columnWidths: [16, 44, 13, 17, 24],
+    rowHeights: { 1: 34, 2: 20, [headerRow]: 26 },
+    merges: ["A1:E1", "A2:E2", ...metaMerges],
+    freezeRows: headerRow,
+    autoFilter: `A${headerRow}:E${lastDataRow}`,
+    hideGridLines: true,
+  });
+}
 
 /** URL pública del frontend, para armar el link de votación de cada proceso. */
 function frontendUrl(): string {
@@ -572,6 +680,18 @@ function ElectionManagement({ onClose, onDeleteElection, onDeleteCandidate, refr
     if (!candidatesMap[id]) loadCandidates(id);
   };
 
+  /**
+   * Votos y porcentaje de un candidato dentro de su proceso. Se leen de
+   * `resultsMap`, que ya se carga para todos los procesos al abrir el panel, así
+   * que desplegar una fila no dispara peticiones extra.
+   */
+  const candidateStats = (electionID: string, candidateID: string) => {
+    const res = resultsMap[electionID];
+    const votes = res?.ranking?.find((r: ResultItem) => r.candidate_id === candidateID)?.votes ?? 0;
+    const total = res?.total_votes ?? 0;
+    return { votes, total, share: total > 0 ? (votes / total) * 100 : 0 };
+  };
+
   const categories = [
     { id: "all", label: "Todos" },
     { id: "presidencial", label: "Presidencial" },
@@ -716,7 +836,8 @@ function ElectionManagement({ onClose, onDeleteElection, onDeleteCandidate, refr
             </thead>
             <tbody>
               {pager.pageItems.map(e => {
-                const leader = resultsMap[e.id]?.ranking?.[0];
+                // "No sabe / No opina" nunca figura como líder del proceso.
+                const leader = sortRanking(resultsMap[e.id]?.ranking).find(r => !r.is_undecided);
                 const isOpen = expanded === e.id;
                 return (
                   <Fragment key={e.id}>
@@ -768,33 +889,74 @@ function ElectionManagement({ onClose, onDeleteElection, onDeleteCandidate, refr
                       <tr className="hover:bg-transparent">
                         <td colSpan={7} className="bg-ink-50/60 p-0 dark:bg-white/5">
                           <div className="px-6 py-4">
-                            <p className="mb-3 text-[13px] font-medium text-ink-500 dark:text-ink-300">
-                              Candidatos {candidatesMap[e.id] ? `(${candidatesMap[e.id].length})` : ""}
-                            </p>
+                            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                              <p className="text-[13px] font-medium text-ink-500 dark:text-ink-300">
+                                Candidatos {candidatesMap[e.id] ? `(${candidatesMap[e.id].length})` : ""}
+                                {/* Base sobre la que se calculan los porcentajes de cada fila. */}
+                                <span className="ml-2 font-normal text-ink-400">
+                                  · {(resultsMap[e.id]?.total_votes ?? 0).toLocaleString("es-PE")} votos en total
+                                </span>
+                              </p>
+                              <button
+                                className="btn-secondary btn-sm"
+                                title="Descargar el conteo de este proceso en Excel"
+                                onClick={() => {
+                                  exportResultsToExcel(e, resultsMap[e.id]);
+                                  notify("Reporte descargado", "info");
+                                }}
+                              >
+                                Descargar Excel
+                              </button>
+                            </div>
                             {!candidatesMap[e.id] ? (
                               <p className="text-sm text-ink-400">Cargando…</p>
                             ) : candidatesMap[e.id].length === 0 ? (
                               <p className="text-sm text-ink-400">Este proceso aún no tiene candidatos inscritos.</p>
                             ) : (
                               <div className="space-y-2">
-                                {candidatesMap[e.id].map(c => (
-                                  <div key={c.id} className="flex items-center justify-between gap-4 rounded-lg border border-ink-100 bg-white px-4 py-2.5 dark:border-white/10 dark:bg-ink-900">
-                                    <div className="flex min-w-0 items-center gap-3">
+                                {candidatesMap[e.id].map(c => {
+                                  const stats = candidateStats(e.id, c.id);
+                                  return (
+                                  <div key={c.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 rounded-lg border border-ink-100 bg-white px-4 py-2.5 dark:border-white/10 dark:bg-ink-900">
+                                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                                      {/* Marco cuadrado y `object-contain`: la foto se ve entera, sin recorte circular. */}
                                       {c.image_url
-                                        ? <img src={getImageUrl(c.image_url)} className="h-9 w-9 shrink-0 rounded-full object-cover" alt="" />
-                                        : <span className="h-9 w-9 shrink-0 rounded-full bg-ink-100 dark:bg-white/10" />}
+                                        ? <img src={getImageUrl(c.image_url)} className="h-9 w-9 shrink-0 rounded-lg border border-ink-100 object-contain dark:border-white/10" alt="" />
+                                        : <span className="h-9 w-9 shrink-0 rounded-lg bg-ink-100 dark:bg-white/10" />}
                                       <div className="min-w-0">
-                                        <p className="truncate text-sm font-medium">{c.name}</p>
+                                        <p className="flex items-center gap-2 truncate text-sm font-medium">
+                                          {c.name}
+                                          {c.is_undecided && <span className="badge-neutral shrink-0">Siempre al final</span>}
+                                        </p>
                                         {c.description && <p className="truncate text-[13px] text-ink-400">{c.description}</p>}
                                       </div>
                                     </div>
+
+                                    {/* Conteo del candidato: cifra, porcentaje sobre el total y barra de apoyo. */}
+                                    <div className="w-36 shrink-0">
+                                      <div className="flex items-baseline justify-end gap-1.5">
+                                        <span className="text-sm font-semibold tabular-nums">{stats.votes.toLocaleString("es-PE")}</span>
+                                        <span className="text-[12px] text-ink-400">{stats.votes === 1 ? "voto" : "votos"}</span>
+                                        <span className="text-[13px] font-medium tabular-nums text-brand-700 dark:text-brand-300">
+                                          {stats.share.toFixed(1)}%
+                                        </span>
+                                      </div>
+                                      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-ink-100 dark:bg-white/10">
+                                        <div
+                                          className={`h-full rounded-full ${c.is_undecided ? "bg-steel-400" : "bg-brand-600"}`}
+                                          style={{ width: `${stats.share}%` }}
+                                        />
+                                      </div>
+                                    </div>
+
                                     <div className="flex shrink-0 items-center gap-1.5">
-                                      <button className="btn-ghost btn-sm" onClick={() => setModal({ isOpen: true, type: 'vote', id: c.id, extraId: e.id })}>Añadir votos</button>
+                                      <button className="btn-ghost btn-sm" onClick={() => setModal({ isOpen: true, type: 'vote', id: c.id, extraId: e.id })}>Ajustar votos</button>
                                       <button className="btn-secondary btn-sm" onClick={() => setEditCandidate(c)}>Editar</button>
                                       <button className="btn-danger btn-sm" onClick={() => setModal({ isOpen: true, type: 'candidate', id: c.id, extraId: e.id })}>Remover</button>
                                     </div>
                                   </div>
-                                ))}
+                                  );
+                                })}
                               </div>
                             )}
                           </div>
@@ -818,17 +980,33 @@ function ElectionManagement({ onClose, onDeleteElection, onDeleteCandidate, refr
         <Pagination {...pager} />
       </div>
 
-      {/* Añadir votos */}
+      {/* Ajustar votos: sumar o restar */}
       {modal?.type === 'vote' && (
         <VoteModal
+          candidateName={(candidatesMap[modal.extraId || ""] || []).find(c => c.id === modal.id)?.name || "el candidato"}
+          currentVotes={resultsMap[modal.extraId || ""]?.ranking?.find((r: ResultItem) => r.candidate_id === modal.id)?.votes ?? 0}
           onCancel={() => setModal(null)}
-          onConfirm={(count) => {
-            api(`/admin/add-vote`, {
+          onConfirm={(count, mode) => {
+            const path = mode === "add" ? "/admin/add-vote" : "/admin/remove-vote";
+            api<{ removed?: number }>(path, {
               method: "POST",
               headers: authHeaders(),
               body: JSON.stringify({ election_id: modal.extraId, candidate_id: modal.id, count }),
             })
-              .then(() => { notify(`${count} voto(s) añadidos`, "success"); setModal(null); refresh(); })
+              .then(res => {
+                // Al restar, el backend informa cuántos pudo quitar de verdad.
+                const removed = res?.removed ?? count;
+                notify(
+                  mode === "add"
+                    ? `${count} voto(s) añadidos`
+                    : removed < count
+                      ? `Se quitaron ${removed} voto(s): el candidato no tenía más.`
+                      : `${removed} voto(s) quitados`,
+                  mode === "add" || removed === count ? "success" : "info"
+                );
+                setModal(null);
+                refresh();
+              })
               .catch((e: any) => notify(e.message, "error"));
           }}
         />
@@ -837,8 +1015,19 @@ function ElectionManagement({ onClose, onDeleteElection, onDeleteCandidate, refr
   );
 }
 
-function VoteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: (count: number) => void }) {
+function VoteModal({ candidateName, currentVotes, onCancel, onConfirm }: {
+  candidateName: string;
+  currentVotes: number;
+  onCancel: () => void;
+  onConfirm: (count: number, mode: "add" | "remove") => void;
+}) {
   const [count, setCount] = useState("1");
+  const [mode, setMode] = useState<"add" | "remove">("add");
+
+  const parsed = parseInt(count, 10);
+  const valid = !isNaN(parsed) && parsed >= 1;
+  // Al restar no se puede bajar de cero: se avisa antes de enviar.
+  const excess = mode === "remove" && valid && parsed > currentVotes;
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4" role="dialog" aria-modal="true">
@@ -847,34 +1036,70 @@ function VoteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: (
         className="panel relative w-full max-w-sm shadow-lg"
         onSubmit={e => {
           e.preventDefault();
-          const n = parseInt(count, 10);
-          if (isNaN(n) || n < 1) return;
-          onConfirm(n);
+          if (!valid) return;
+          onConfirm(mode === "remove" ? Math.min(parsed, currentVotes) : parsed, mode);
         }}
       >
         <div className="panel-header">
           <div>
-            <h3 className="panel-title">Añadir votos</h3>
-            <p className="panel-subtitle">Ajuste administrativo del conteo.</p>
+            <h3 className="panel-title">Ajustar votos</h3>
+            <p className="panel-subtitle">
+              {candidateName} · <span className="tabular-nums">{currentVotes.toLocaleString("es-PE")}</span> voto(s) actuales
+            </p>
           </div>
         </div>
-        <div className="panel-body">
+        <div className="panel-body space-y-4">
+          <div className="field">
+            <span className="label">Operación</span>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setMode("add")}
+                className={mode === "add"
+                  ? "btn-sm flex-1 rounded-lg bg-brand-50 font-medium text-brand-700 dark:bg-brand-500/10 dark:text-brand-300"
+                  : "btn-secondary btn-sm flex-1"}
+              >
+                Añadir
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("remove")}
+                className={mode === "remove"
+                  ? "btn-sm flex-1 rounded-lg bg-red-50 font-medium text-red-700 dark:bg-red-500/10 dark:text-red-300"
+                  : "btn-secondary btn-sm flex-1"}
+              >
+                Quitar
+              </button>
+            </div>
+          </div>
           <div className="field">
             <label htmlFor="vote-count" className="label">Cantidad de votos</label>
             <input
               id="vote-count"
               type="number"
               min={1}
+              max={mode === "remove" ? Math.max(currentVotes, 1) : undefined}
               className="input"
               value={count}
               onChange={e => setCount(e.target.value)}
               autoFocus
             />
+            {mode === "remove" && (
+              excess
+                ? <p className="hint text-red-600 dark:text-red-400">Solo hay {currentVotes} voto(s); se quitarán todos.</p>
+                : <p className="hint">Se quitan primero los votos cargados desde el panel, empezando por los más recientes.</p>
+            )}
           </div>
         </div>
         <div className="panel-footer">
           <button type="button" className="btn-secondary" onClick={onCancel}>Cancelar</button>
-          <button type="submit" className="btn-primary">Añadir</button>
+          <button
+            type="submit"
+            className={mode === "add" ? "btn-primary" : "btn-danger"}
+            disabled={!valid || (mode === "remove" && currentVotes === 0)}
+          >
+            {mode === "add" ? "Añadir" : "Quitar"}
+          </button>
         </div>
       </form>
     </div>
@@ -1261,10 +1486,25 @@ function CreateCandidate({ onSave, isEdit, initialData }: { onSave: (d: any) => 
 
   useEffect(() => { api<Election[]>("/admin/elections", { headers: authHeaders() }).then(d => setElections(d || [])).catch(() => {}); }, []);
 
+  /*
+    Al activar la casilla el nombre se rellena solo, que es lo que se pide: el
+    administrador ya no lo escribe. Sigue siendo editable, y al desactivarla se
+    borra únicamente si quedó el texto por defecto, para no perder lo escrito.
+  */
+  const toggleUndecided = (checked: boolean) => {
+    setD((prev: any) => {
+      const name = checked
+        ? (prev.name?.trim() ? prev.name : UNDECIDED_NAME)
+        : (prev.name === UNDECIDED_NAME ? "" : prev.name);
+      return { ...prev, is_undecided: checked, name };
+    });
+    setErrors(prev => ({ ...prev, name: "" }));
+  };
+
   const validate = () => {
     const next: Record<string, string> = {};
 
-    if (!d.name?.trim()) next.name = "Escribe el nombre del candidato.";
+    if (!d.name?.trim()) next.name = d.is_undecided ? "Escribe el texto de la opción." : "Escribe el nombre del candidato.";
     else if (d.name.trim().length < 3) next.name = "El nombre debe tener al menos 3 caracteres.";
 
     if (!file && !d.image_url) next.image = "Selecciona una fotografía.";
@@ -1288,7 +1528,7 @@ function CreateCandidate({ onSave, isEdit, initialData }: { onSave: (d: any) => 
       setUploading(true);
       let url = d.image_url;
       if (file) url = await uploadImage(file);
-      onSave({ ...d, image_url: url });
+      onSave({ ...d, image_url: url, is_undecided: !!d.is_undecided });
       setFile(null);
     } catch (e: any) {
       setErrors({ form: "No se pudo subir la foto: " + e.message });
@@ -1308,20 +1548,49 @@ function CreateCandidate({ onSave, isEdit, initialData }: { onSave: (d: any) => 
 
       <div className="form-section">
         <div>
+          <p className="text-sm font-medium">Tipo de opción</p>
+          <p className="hint mt-1">Un candidato normal o la alternativa neutral de la encuesta.</p>
+        </div>
+        <div className="form-section-fields">
+          <label className="flex items-start gap-3 rounded-lg border border-ink-200 px-4 py-3 dark:border-white/10">
+            <input
+              type="checkbox"
+              checked={!!d.is_undecided}
+              onChange={e => toggleUndecided(e.target.checked)}
+              className="mt-0.5 h-4 w-4 accent-brand-600"
+            />
+            <span className="text-sm">
+              <span className="font-medium">Es la opción «No sabe / No opina»</span>
+              <span className="mt-1 block text-ink-400">
+                Se completa igual que cualquier candidato (foto, descripción, enlace), pero en los
+                resultados en vivo queda siempre en el último lugar, sin importar cuántos votos reúna.
+              </span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div className="form-section">
+        <div>
           <p className="text-sm font-medium">Identificación</p>
           <p className="hint mt-1">Nombre y eslogan que verán los votantes.</p>
         </div>
         <div className="form-section-fields">
           <div className="field">
-            <label htmlFor="cand-name" className="label">Nombre completo u organización <span className="text-red-500">*</span></label>
+            <label htmlFor="cand-name" className="label">
+              {d.is_undecided ? "Texto de la opción" : "Nombre completo u organización"} <span className="text-red-500">*</span>
+            </label>
             <input
               id="cand-name"
               className={fieldClass("input", errors.name)}
-              placeholder="Ej. María Fernández"
+              placeholder={d.is_undecided ? UNDECIDED_NAME : "Ej. María Fernández"}
               value={d.name || ""}
               onChange={e => setD({ ...d, name: e.target.value })}
               aria-invalid={!!errors.name}
             />
+            {d.is_undecided
+              ? <p className="hint">Se rellenó con «{UNDECIDED_NAME}». Puedes cambiarlo por el texto que prefieras.</p>
+              : null}
             <FieldError message={errors.name} />
           </div>
           <div className="field">
@@ -1340,13 +1609,14 @@ function CreateCandidate({ onSave, isEdit, initialData }: { onSave: (d: any) => 
       <div className="form-section">
         <div>
           <p className="text-sm font-medium">Fotografía</p>
-          <p className="hint mt-1">Se muestra en la tarjeta del candidato. Preferible cuadrada.</p>
+          <p className="hint mt-1">Se muestra completa, sin recortes ni marco redondo, tal como la subas.</p>
         </div>
         <div className="form-section-fields">
           <div className="flex items-center gap-4">
-            <div className={`flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-ink-50 dark:bg-ink-950 ${errors.image ? "border-red-400" : "border-ink-200 dark:border-white/10"}`}>
+            {/* `object-contain` sobre marco cuadrado: la vista previa coincide con lo que verá el votante. */}
+            <div className={`flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-ink-50 dark:bg-ink-950 ${errors.image ? "border-red-400" : "border-ink-200 dark:border-white/10"}`}>
               {(file || d.image_url) ? (
-                <img src={file ? URL.createObjectURL(file) : getImageUrl(d.image_url)} className="h-full w-full object-cover" alt="Vista previa" />
+                <img src={file ? URL.createObjectURL(file) : getImageUrl(d.image_url)} className="h-full w-full object-contain" alt="Vista previa" />
               ) : (
                 <span className="text-[13px] text-ink-400">Foto</span>
               )}

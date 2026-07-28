@@ -163,7 +163,9 @@ export default function ElectionPage({ params }: { params: Promise<{ id: string 
                   <h2 className="text-base md:text-xl font-semibold mb-2 md:mb-3 tracking-tight text-navy dark:text-white leading-tight">{c.name}</h2>
                   <div className="h-0.5 w-8 bg-gold mb-3 md:mb-4"></div>
                   <p className="text-carbon/75 dark:text-ink-300 text-xs md:text-sm leading-relaxed mb-4 md:mb-5 flex-grow italic">
-                    "{c.description || "Comprometido con el desarrollo transparente y el servicio íntegro a la ciudadanía."}"
+                    "{c.description || (c.is_undecided
+                      ? "Ninguna de las opciones anteriores representa mi preferencia."
+                      : "Comprometido con el desarrollo transparente y el servicio íntegro a la ciudadanía.")}"
                   </p>
 
                   {c.button_text && c.button_url && (

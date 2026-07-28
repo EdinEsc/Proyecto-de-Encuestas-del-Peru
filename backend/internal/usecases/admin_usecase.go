@@ -91,26 +91,42 @@ func (u AdminUsecase) UpdateElection(id, title, typeID string, regionID *string,
 	})
 }
 
-func (u AdminUsecase) CreateCandidate(name, imageURL, electionID string, description, btnText, btnURL *string) (*domain.Candidate, error) {
+// DefaultUndecidedName es el nombre que toma la opción "No sabe / No opina"
+// cuando el administrador activa la casilla y no escribe uno propio.
+const DefaultUndecidedName = "No sabe / No opina"
+
+func (u AdminUsecase) CreateCandidate(name, imageURL, electionID string, description, btnText, btnURL *string, isUndecided bool) (*domain.Candidate, error) {
 	return u.Candidates.Create(domain.Candidate{
-		Name:        name,
+		Name:        undecidedName(name, isUndecided),
 		ImageURL:    imageURL,
 		ElectionID:  electionID,
 		Description: description,
 		ButtonText:  btnText,
 		ButtonURL:   btnURL,
+		IsUndecided: isUndecided,
 	})
 }
 
-func (u AdminUsecase) UpdateCandidate(id, name, imageURL string, description, btnText, btnURL *string) error {
+func (u AdminUsecase) UpdateCandidate(id, name, imageURL string, description, btnText, btnURL *string, isUndecided bool) error {
 	return u.Candidates.Update(domain.Candidate{
 		ID:          id,
-		Name:        name,
+		Name:        undecidedName(name, isUndecided),
 		ImageURL:    imageURL,
 		Description: description,
 		ButtonText:  btnText,
 		ButtonURL:   btnURL,
+		IsUndecided: isUndecided,
 	})
+}
+
+// undecidedName respeta el nombre que escriba el administrador y solo pone el
+// texto por defecto cuando la casilla está activa y el campo quedó vacío.
+func undecidedName(name string, isUndecided bool) string {
+	trimmed := strings.TrimSpace(name)
+	if isUndecided && trimmed == "" {
+		return DefaultUndecidedName
+	}
+	return trimmed
 }
 
 func (u AdminUsecase) DeleteRegion(id string) error {
@@ -123,4 +139,10 @@ func (u AdminUsecase) DeleteElectionType(id string) error {
 
 func (u AdminUsecase) AddManualVotes(electionID, candidateID string, count int) error {
 	return u.Votes.AddManualVotes(electionID, candidateID, count)
+}
+
+// RemoveManualVotes descuenta votos ya cargados. Devuelve cuántos se quitaron
+// realmente, que puede ser menos de lo pedido si el candidato no tenía tantos.
+func (u AdminUsecase) RemoveManualVotes(electionID, candidateID string, count int) (int64, error) {
+	return u.Votes.RemoveManualVotes(electionID, candidateID, count)
 }

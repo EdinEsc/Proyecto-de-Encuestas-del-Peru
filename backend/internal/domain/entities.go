@@ -44,6 +44,9 @@ type Candidate struct {
 	ButtonText  *string `json:"button_text,omitempty"`
 	ButtonURL   *string `json:"button_url,omitempty"`
 	ElectionID  string  `json:"election_id"`
+	// IsUndecided marca la opción "No sabe / No opina": se comporta como un
+	// candidato normal salvo que siempre se ordena al final del ranking.
+	IsUndecided bool `json:"is_undecided"`
 }
 
 type Vote struct {
@@ -60,6 +63,7 @@ type ResultItem struct {
 	Name        string `json:"name"`
 	ImageURL    string `json:"image_url"`
 	Votes       int64  `json:"votes"`
+	IsUndecided bool   `json:"is_undecided"`
 }
 
 type ElectionRepository interface {
@@ -84,6 +88,9 @@ type VoteRepository interface {
 	HasVoted(electionID string, ip string, browserID string) (bool, error)
 	Create(v Vote) (*Vote, error)
 	AddManualVotes(electionID, candidateID string, count int) error
+	// RemoveManualVotes descuenta votos de un candidato y devuelve cuántos
+	// pudo eliminar realmente (nunca deja el conteo por debajo de cero).
+	RemoveManualVotes(electionID, candidateID string, count int) (int64, error)
 	Results(electionID string) ([]ResultItem, error)
 }
 

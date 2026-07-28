@@ -35,4 +35,5 @@ func RegisterRoutes(r *gin.Engine, h Handler, jwt auth.JWTService) {
 	admin.DELETE("/region/:id", h.DeleteRegion)
 	admin.DELETE("/election-type/:id", h.DeleteElectionType)
 	admin.POST("/add-vote", h.AddVotes)
+	admin.POST("/remove-vote", h.RemoveVotes)
 }

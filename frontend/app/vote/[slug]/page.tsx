@@ -178,7 +178,9 @@ export default function VotePage({ params }: { params: Promise<{ slug: string }>
                         <h3 className="text-base md:text-xl font-semibold mb-2 tracking-tight text-black dark:text-white leading-tight">{c.name}</h3>
                         <div className="h-0.5 w-8 bg-brand-600 mb-3 md:mb-4"></div>
                         <p className="text-ink-600 dark:text-ink-400 text-xs md:text-sm leading-relaxed mb-4 md:mb-5 flex-grow italic">
-                          "{c.description || "Comprometido con el desarrollo transparente y el servicio íntegro a la ciudadanía."}"
+                          "{c.description || (c.is_undecided
+                            ? "Ninguna de las opciones anteriores representa mi preferencia."
+                            : "Comprometido con el desarrollo transparente y el servicio íntegro a la ciudadanía.")}"
                         </p>
 
                         {c.button_text && c.button_url && (

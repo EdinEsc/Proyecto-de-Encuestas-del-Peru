@@ -22,6 +22,8 @@ export type Candidate = {
   button_text?: string;
   button_url?: string;
   election_id: string;
+  /** Opción "No sabe / No opina": se muestra siempre al final del ranking. */
+  is_undecided?: boolean;
 };
 
 export type ResultItem = {
@@ -29,6 +31,7 @@ export type ResultItem = {
   name: string;
   image_url: string;
   votes: number;
+  is_undecided?: boolean;
 };
 
 export type Results = {
@@ -36,6 +39,18 @@ export type Results = {
   total_votes: number;
   ranking: ResultItem[];
 };
+
+/*
+  "No sabe / No opina" no compite: por muchos votos que reúna se queda al final
+  del escrutinio. El backend ya lo ordena así; repetirlo aquí protege a la vista
+  de respuestas cacheadas anteriores a este cambio.
+*/
+export function sortRanking(ranking: ResultItem[] | null | undefined): ResultItem[] {
+  return [...(ranking ?? [])].sort((a, b) => {
+    if (!!a.is_undecided !== !!b.is_undecided) return a.is_undecided ? 1 : -1;
+    return b.votes - a.votes;
+  });
+}
 
 /*
   `revalidate` (en segundos) cachea la respuesta en el servidor de Next: durante

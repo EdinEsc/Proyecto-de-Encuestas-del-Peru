@@ -22,6 +22,8 @@ export type Candidate = {
   button_text?: string;
   button_url?: string;
   election_id: string;
+  /** Opción "No sabe / No opina": se muestra siempre al final del ranking. */
+  is_undecided?: boolean;
 };
 
 export type ResultItem = {
@@ -29,6 +31,7 @@ export type ResultItem = {
   name: string;
   image_url: string;
   votes: number;
+  is_undecided?: boolean;
 };
 
 export type Results = {
@@ -36,6 +39,18 @@ export type Results = {
   total_votes: number;
   ranking: ResultItem[];
 };
+
+/*
+  El backend ya devuelve "No sabe / No opina" al final, pero el orden se vuelve a
+  aplicar en el cliente para que la regla se cumpla aunque la respuesta venga de
+  una caché previa a este cambio.
+*/
+export function sortRanking(ranking: ResultItem[] | null | undefined): ResultItem[] {
+  return [...(ranking ?? [])].sort((a, b) => {
+    if (!!a.is_undecided !== !!b.is_undecided) return a.is_undecided ? 1 : -1;
+    return b.votes - a.votes;
+  });
+}
 
 export type Region = {
   id: string;

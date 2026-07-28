@@ -1,6 +1,6 @@
 "use client";
 
-import { Results, getImageUrl } from "@/lib/api";
+import { Results, getImageUrl, sortRanking } from "@/lib/api";
 
 /*
   Tarjeta lateral de resultados. Sustituye al botón "Ver Escrutinio Detallado":
@@ -15,10 +15,13 @@ export default function LiveRanking({
   isActive?: boolean;
   className?: string;
 }) {
-  const ranking = results?.ranking ?? [];
+  // "No sabe / No opina" va siempre al final, tenga los votos que tenga.
+  const ranking = sortRanking(results?.ranking);
   const totalVotes = results?.total_votes ?? 0;
   // La barra se mide contra el puntero: la distancia con el líder se lee de un vistazo.
   const topVotes = ranking.reduce((max, r) => Math.max(max, r.votes), 0);
+  // La numeración solo cuenta candidatos: la opción neutral no ocupa un puesto.
+  let position = 0;
 
   return (
     <aside className={`rounded-xl border border-mist dark:border-white/10 bg-white dark:bg-navy overflow-hidden lg:sticky lg:top-6 ${className}`}>
@@ -45,7 +48,8 @@ export default function LiveRanking({
 
       <div className="p-6 md:p-7 space-y-6">
         {ranking.map((r, i) => {
-          const isLeader = i === 0 && r.votes > 0;
+          if (!r.is_undecided) position += 1;
+          const isLeader = i === 0 && r.votes > 0 && !r.is_undecided;
           const fill = topVotes > 0 ? (r.votes / topVotes) * 100 : 0;
           const share = totalVotes > 0 ? (r.votes / totalVotes) * 100 : 0;
 
@@ -59,7 +63,7 @@ export default function LiveRanking({
                       : "bg-mist text-carbon/70 dark:bg-white/10 dark:text-ink-200"
                   }`}
                 >
-                  {i + 1}
+                  {r.is_undecided ? "–" : position}
                 </span>
                 <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-mist dark:bg-navy-dark">
                   <img

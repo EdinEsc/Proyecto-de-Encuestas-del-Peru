@@ -1,8 +1,9 @@
-import { Results } from "@/lib/api";
+import { Results, sortRanking } from "@/lib/api";
 
 export default function ResultBars({ results }: { results: Results }) {
   // La API devuelve ranking: null cuando la elección aún no tiene votos.
-  const ranking = results?.ranking ?? [];
+  // `sortRanking` además ancla "No sabe / No opina" al último lugar.
+  const ranking = sortRanking(results?.ranking);
   const totalVotes = results?.total_votes ?? 0;
 
   // La barra se mide contra el puntero, no contra el total: así la diferencia
@@ -28,8 +29,10 @@ export default function ResultBars({ results }: { results: Results }) {
 
       <div className="grid gap-4">
         {ranking.map((r, i) => {
-          const isWinner = i === 0 && r.votes > 0;
+          const isWinner = i === 0 && r.votes > 0 && !r.is_undecided;
           const fill = topVotes === 0 ? 0 : (r.votes / topVotes) * 100;
+          // La opción neutral no ocupa puesto: se marca con un guion.
+          const position = ranking.slice(0, i + 1).filter(x => !x.is_undecided).length;
 
           return (
             <div
@@ -49,7 +52,7 @@ export default function ResultBars({ results }: { results: Results }) {
                         : "bg-steel-100 text-steel-500 dark:bg-white/10 dark:text-steel-300"
                     }`}
                   >
-                    {i + 1}
+                    {r.is_undecided ? "–" : position}
                   </div>
                   <h4 className="flex items-center gap-2 text-lg font-bold text-ink-900 dark:text-white">
                     {r.name}

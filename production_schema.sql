@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS candidates (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(160) NOT NULL,
   image_url TEXT NOT NULL,
+  is_undecided BOOLEAN NOT NULL DEFAULT false,
   election_id UUID NOT NULL REFERENCES elections(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

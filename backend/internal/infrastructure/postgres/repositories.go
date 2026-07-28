@@ -101,7 +101,8 @@ func (r ElectionRepo) Delete(id string) error {
 }
 
 func (r CandidateRepo) ListByElection(electionID string) ([]domain.Candidate, error) {
-	rows, err := r.DB.Query(context.Background(), `SELECT id,name,image_url,description,button_text,button_url,election_id FROM candidates WHERE election_id=$1 ORDER BY created_at ASC`, electionID)
+	// "No sabe / No opina" siempre va al final, también en la papeleta.
+	rows, err := r.DB.Query(context.Background(), `SELECT id,name,image_url,description,button_text,button_url,election_id,is_undecided FROM candidates WHERE election_id=$1 ORDER BY is_undecided ASC, created_at ASC`, electionID)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +110,7 @@ func (r CandidateRepo) ListByElection(electionID string) ([]domain.Candidate, er
 	list := []domain.Candidate{}
 	for rows.Next() {
 		var c domain.Candidate
-		if err := rows.Scan(&c.ID, &c.Name, &c.ImageURL, &c.Description, &c.ButtonText, &c.ButtonURL, &c.ElectionID); err != nil {
+		if err := rows.Scan(&c.ID, &c.Name, &c.ImageURL, &c.Description, &c.ButtonText, &c.ButtonURL, &c.ElectionID, &c.IsUndecided); err != nil {
 			return nil, err
 		}
 		list = append(list, c)
@@ -118,18 +119,18 @@ func (r CandidateRepo) ListByElection(electionID string) ([]domain.Candidate, er
 }
 func (r CandidateRepo) GetByID(id string) (*domain.Candidate, error) {
 	var c domain.Candidate
-	err := r.DB.QueryRow(context.Background(), `SELECT id,name,image_url,description,button_text,button_url,election_id FROM candidates WHERE id=$1`, id).Scan(&c.ID, &c.Name, &c.ImageURL, &c.Description, &c.ButtonText, &c.ButtonURL, &c.ElectionID)
+	err := r.DB.QueryRow(context.Background(), `SELECT id,name,image_url,description,button_text,button_url,election_id,is_undecided FROM candidates WHERE id=$1`, id).Scan(&c.ID, &c.Name, &c.ImageURL, &c.Description, &c.ButtonText, &c.ButtonURL, &c.ElectionID, &c.IsUndecided)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, errors.New("candidato no encontrado")
 	}
 	return &c, err
 }
 func (r CandidateRepo) Create(c domain.Candidate) (*domain.Candidate, error) {
-	err := r.DB.QueryRow(context.Background(), `INSERT INTO candidates(name,image_url,description,button_text,button_url,election_id) VALUES($1,$2,$3,$4,$5,$6) RETURNING id`, c.Name, c.ImageURL, c.Description, c.ButtonText, c.ButtonURL, c.ElectionID).Scan(&c.ID)
+	err := r.DB.QueryRow(context.Background(), `INSERT INTO candidates(name,image_url,description,button_text,button_url,election_id,is_undecided) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id`, c.Name, c.ImageURL, c.Description, c.ButtonText, c.ButtonURL, c.ElectionID, c.IsUndecided).Scan(&c.ID)
 	return &c, err
 }
 func (r CandidateRepo) Update(c domain.Candidate) error {
-	_, err := r.DB.Exec(context.Background(), `UPDATE candidates SET name=$1, image_url=$2, description=$3, button_text=$4, button_url=$5 WHERE id=$6`, c.Name, c.ImageURL, c.Description, c.ButtonText, c.ButtonURL, c.ID)
+	_, err := r.DB.Exec(context.Background(), `UPDATE candidates SET name=$1, image_url=$2, description=$3, button_text=$4, button_url=$5, is_undecided=$6 WHERE id=$7`, c.Name, c.ImageURL, c.Description, c.ButtonText, c.ButtonURL, c.IsUndecided, c.ID)
 	return err
 }
 func (r CandidateRepo) Delete(id string) error {
@@ -154,8 +155,33 @@ func (r VoteRepo) AddManualVotes(electionID, candidateID string, count int) erro
 	`, candidateID, electionID, count)
 	return err
 }
+
+// RemoveManualVotes borra hasta `count` votos del candidato. Se eliminan primero
+// los cargados manualmente desde el panel (browser_id='manual-override') y, entre
+// ellos, los más recientes: así deshacer un exceso de carga no toca los votos
+// reales del público mientras queden ajustes administrativos por revertir.
+func (r VoteRepo) RemoveManualVotes(electionID, candidateID string, count int) (int64, error) {
+	tag, err := r.DB.Exec(context.Background(), `
+		DELETE FROM votes
+		WHERE id IN (
+			SELECT id FROM votes
+			WHERE election_id=$1 AND candidate_id=$2
+			-- COALESCE: sin él, browser_id NULL daría NULL y Postgres lo colocaría
+			-- primero en un DESC, borrando votos reales antes que los manuales.
+			ORDER BY (COALESCE(browser_id, '') = 'manual-override') DESC, created_at DESC
+			LIMIT $3
+		)
+	`, electionID, candidateID, count)
+	if err != nil {
+		return 0, err
+	}
+	return tag.RowsAffected(), nil
+}
+
 func (r VoteRepo) Results(electionID string) ([]domain.ResultItem, error) {
-	rows, err := r.DB.Query(context.Background(), `SELECT c.id,c.name,c.image_url,COUNT(v.id) votes FROM candidates c LEFT JOIN votes v ON v.candidate_id=c.id WHERE c.election_id=$1 GROUP BY c.id,c.name,c.image_url ORDER BY votes DESC,c.name`, electionID)
+	// El orden lo fija la base: "No sabe / No opina" queda al final aunque sea
+	// la opción más votada, y el resto se ordena por votos.
+	rows, err := r.DB.Query(context.Background(), `SELECT c.id,c.name,c.image_url,c.is_undecided,COUNT(v.id) votes FROM candidates c LEFT JOIN votes v ON v.candidate_id=c.id WHERE c.election_id=$1 GROUP BY c.id,c.name,c.image_url,c.is_undecided ORDER BY c.is_undecided ASC, votes DESC, c.name`, electionID)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +189,7 @@ func (r VoteRepo) Results(electionID string) ([]domain.ResultItem, error) {
 	list := []domain.ResultItem{}
 	for rows.Next() {
 		var it domain.ResultItem
-		if err := rows.Scan(&it.CandidateID, &it.Name, &it.ImageURL, &it.Votes); err != nil {
+		if err := rows.Scan(&it.CandidateID, &it.Name, &it.ImageURL, &it.IsUndecided, &it.Votes); err != nil {
 			return nil, err
 		}
 		list = append(list, it)

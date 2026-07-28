@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, use } from "react";
 import Link from "next/link";
-import { api, Results, Election, getImageUrl } from "@/lib/api";
+import { api, Results, Election, getImageUrl, sortRanking } from "@/lib/api";
 import { usePolling } from "@/lib/usePolling";
 import { useSearchParams } from "next/navigation";
 import ResultBars from "@/components/ResultBars";
@@ -35,8 +35,10 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   usePolling(loadResults, 30000, Boolean(id));
 
   const totalVotes = results?.total_votes || 0;
+  // "No sabe / No opina" cierra siempre la tabla, por muchos votos que acumule.
+  const ranking = sortRanking(results?.ranking);
   // Referencia para el ancho de las barras: el candidato más votado.
-  const topVotes = (results?.ranking || []).reduce((m, x) => Math.max(m, x.votes), 0);
+  const topVotes = ranking.reduce((m, x) => Math.max(m, x.votes), 0);
 
   return (
     <div className={`min-h-screen bg-white dark:bg-ink-950 ${isMinimal ? "font-['Outfit',_sans-serif]" : ""}`}>
@@ -94,9 +96,11 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
         )}
 
         <div className="grid gap-16 max-w-4xl">
-          {(results?.ranking || []).map((r, i) => {
+          {ranking.map((r, i) => {
             const fill = topVotes > 0 ? (r.votes / topVotes) * 100 : 0;
-            const isLeader = i === 0 && r.votes > 0;
+            const isLeader = i === 0 && r.votes > 0 && !r.is_undecided;
+            // La opción neutral no ocupa puesto en el ranking de candidatos.
+            const position = ranking.slice(0, i + 1).filter(x => !x.is_undecided).length;
             return (
               <div key={r.candidate_id} className="group">
                 <div className="flex justify-between items-end mb-6">
@@ -106,7 +110,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                     </div>
                     <div>
                       <span className="mb-1 flex items-center gap-2 text-xs font-semibold tracking-[0.1em] text-brand-600 dark:text-brand-400">
-                        RANKING {i + 1}
+                        {r.is_undecided ? "SIN PREFERENCIA" : `RANKING ${position}`}
                         {isLeader && <span className="badge-up">Líder</span>}
                       </span>
                       <h3 className="text-3xl font-semibold leading-none tracking-tight text-ink-900 dark:text-white">{r.name}</h3>
@@ -136,7 +140,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
           })}
         </div>
 
-        {(results?.ranking || []).length === 0 && (
+        {ranking.length === 0 && (
           <div className="py-20 text-ink-400 italic text-sm font-bold tracking-wide text-center">
             Aún no se han registrado participaciones en este proceso.
           </div>

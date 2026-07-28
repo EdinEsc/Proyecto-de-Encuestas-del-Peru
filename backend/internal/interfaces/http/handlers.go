@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -219,19 +220,26 @@ func (h Handler) UpdateElection(c *gin.Context) {
 }
 
 func (h Handler) CreateCandidate(c *gin.Context) {
+	// El nombre no es obligatorio cuando se marca "No sabe / No opina": en ese
+	// caso el caso de uso pone el texto por defecto.
 	var body struct {
-		Name        string  `json:"name" binding:"required"`
+		Name        string  `json:"name"`
 		ImageURL    string  `json:"image_url" binding:"required"`
 		ElectionID  string  `json:"election_id" binding:"required"`
 		Description *string `json:"description"`
 		ButtonText  *string `json:"button_text"`
 		ButtonURL   *string `json:"button_url"`
+		IsUndecided bool    `json:"is_undecided"`
 	}
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	candidate, err := h.AdminUC.CreateCandidate(body.Name, body.ImageURL, body.ElectionID, body.Description, body.ButtonText, body.ButtonURL)
+	if strings.TrimSpace(body.Name) == "" && !body.IsUndecided {
+		c.JSON(400, gin.H{"error": "el nombre del candidato es obligatorio"})
+		return
+	}
+	candidate, err := h.AdminUC.CreateCandidate(body.Name, body.ImageURL, body.ElectionID, body.Description, body.ButtonText, body.ButtonURL, body.IsUndecided)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -241,17 +249,22 @@ func (h Handler) CreateCandidate(c *gin.Context) {
 
 func (h Handler) UpdateCandidate(c *gin.Context) {
 	var body struct {
-		Name        string  `json:"name" binding:"required"`
+		Name        string  `json:"name"`
 		ImageURL    string  `json:"image_url" binding:"required"`
 		Description *string `json:"description"`
 		ButtonText  *string `json:"button_text"`
 		ButtonURL   *string `json:"button_url"`
+		IsUndecided bool    `json:"is_undecided"`
 	}
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	err := h.AdminUC.UpdateCandidate(c.Param("id"), body.Name, body.ImageURL, body.Description, body.ButtonText, body.ButtonURL)
+	if strings.TrimSpace(body.Name) == "" && !body.IsUndecided {
+		c.JSON(400, gin.H{"error": "el nombre del candidato es obligatorio"})
+		return
+	}
+	err := h.AdminUC.UpdateCandidate(c.Param("id"), body.Name, body.ImageURL, body.Description, body.ButtonText, body.ButtonURL, body.IsUndecided)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -340,6 +353,26 @@ func (h Handler) AddVotes(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{"ok": true})
+}
+
+// RemoveVotes deshace una carga manual excesiva. Responde con `removed` porque
+// puede quitar menos de lo pedido si el candidato no tenía tantos votos.
+func (h Handler) RemoveVotes(c *gin.Context) {
+	var input struct {
+		ElectionID  string `json:"election_id" binding:"required"`
+		CandidateID string `json:"candidate_id" binding:"required"`
+		Count       int    `json:"count" binding:"required,min=1"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	removed, err := h.AdminUC.RemoveManualVotes(input.ElectionID, input.CandidateID, input.Count)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"ok": true, "removed": removed})
 }
 
 func (h Handler) UploadImage(c *gin.Context) {
