@@ -23,6 +23,7 @@ Thumbs.db
 *.log
 
 # Otros
+*.tsbuildinfo
 uploads/
 .idea/
 .vscode/

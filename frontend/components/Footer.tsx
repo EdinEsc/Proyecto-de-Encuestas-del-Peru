@@ -6,7 +6,7 @@ import { LogoMark } from "@/components/Logo";
 export default function Footer() {
   return (
     <footer className="mt-32 bg-navy py-16 text-white">
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="mx-auto max-w-[1500px] px-6">
         {/*
           Solo queda "Explorar": las columnas de Legalidad y Contacto, y los
           iconos sociales, eran todos href="#" y no llevaban a ninguna parte.

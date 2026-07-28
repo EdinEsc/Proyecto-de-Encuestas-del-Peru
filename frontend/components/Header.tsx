@@ -75,11 +75,11 @@ export default function Header({ elections }: { elections: Election[] }) {
 
   // Pastillas de navegación: el estado activo se lee por el relleno, no por el
   // color del texto, que a esta escala se perdía entre las demás categorías.
-  const pillBase = "flex items-center rounded-xl text-sm font-medium transition-colors";
+  const pillBase = "flex items-center justify-center rounded-xl text-[15px] font-semibold transition-colors";
   const pillState = (id: string) =>
     activeCategory === id
-      ? "bg-navy text-white dark:bg-electric"
-      : "text-carbon hover:bg-mist hover:text-navy dark:text-ink-300 dark:hover:bg-white/10 dark:hover:text-white";
+      ? "bg-navy text-white shadow-card dark:bg-electric"
+      : "border border-mist text-carbon hover:border-navy/30 hover:bg-mist hover:text-navy dark:border-white/10 dark:text-ink-300 dark:hover:bg-white/10 dark:hover:text-white";
 
   /*
     Las filas del desplegable se pintan en dos sitios: anclado bajo la pastilla
@@ -126,7 +126,7 @@ export default function Header({ elections }: { elections: Election[] }) {
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-br from-ink-950/95 via-ink-900/85 to-brand-800/80" />
-        <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-center px-6 py-12 text-center">
+        <div className="relative z-10 mx-auto flex max-w-[1500px] flex-col items-center px-6 py-12 text-center">
           <Link href="/" className="transition-opacity hover:opacity-90">
             <Logo />
           </Link>
@@ -138,82 +138,13 @@ export default function Header({ elections }: { elections: Election[] }) {
       </div>
 
       {/* Navegación */}
-      <div className="mx-auto max-w-7xl px-6 py-4">
-        <div className="flex flex-col items-center justify-between gap-4 lg:flex-row">
-          <div ref={dropdownRef} className="w-full lg:w-auto">
-            {/*
-              Móvil: una sola línea con scroll horizontal (antes se partía en
-              tres filas desordenadas). Escritorio: rejilla de 3 columnas, o
-              sea dos filas de tres.
-            */}
-            {/*
-              Sin justify-items-start las pastillas se estiran a la columna, y
-              como las columnas son iguales todas acaban del mismo ancho. Eso
-              es lo que permite que el panel calce exacto con su pastilla.
-            */}
-            <nav className="scrollbar-none -mx-1 flex flex-nowrap items-center gap-3 overflow-x-auto px-1 pb-1 lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-2 lg:overflow-x-visible lg:px-0 lg:pb-0">
-              {categories.map((c) => {
-                if (!c.hasDropdown) {
-                  return (
-                    <Link
-                      key={c.id}
-                      href={urlFor(c.id, search)}
-                      className={`${pillBase} ${pillState(c.id)} shrink-0 whitespace-nowrap px-5 py-2.5 lg:w-full`}
-                    >
-                      {c.label}
-                    </Link>
-                  );
-                }
-
-                const isOpen = openDropdown === c.id;
-
-                return (
-                  <div key={c.id} className="relative shrink-0 lg:w-full">
-                    {/*
-                      Toda la pastilla abre el desplegable. Antes el nombre era
-                      un enlace y solo la flecha desplegaba, así que hacer clic
-                      en el texto parecía no hacer nada.
-
-                      Abierto, el botón pierde el redondeo inferior para que la
-                      lista se lea como una sola pieza, igual que un <select>.
-                    */}
-                    <button
-                      onClick={() => setOpenDropdown(isOpen ? null : c.id)}
-                      aria-expanded={isOpen}
-                      className={`${pillBase} ${pillState(c.id)} gap-2 whitespace-nowrap px-5 py-2.5 lg:w-full lg:justify-between ${isOpen ? "lg:rounded-b-none" : ""}`}
-                    >
-                      {c.label}
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 opacity-60 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}><polyline points="6 9 12 15 18 9" /></svg>
-                    </button>
-
-                    {/*
-                      w-full: el panel mide exactamente lo que la pastilla, que
-                      es lo que hace que se lean como una sola pieza. Antes era
-                      w-max y sobresalía por la derecha.
-                    */}
-                    {isOpen && c.items && c.items.length > 0 && (
-                      <div className="scroll-slim absolute left-0 top-full z-[110] hidden max-h-[420px] w-full overflow-y-auto overflow-x-hidden rounded-b-lg border border-navy/15 bg-white shadow-lg dark:border-white/15 dark:bg-navy lg:block">
-                        {dropdownItems(c)}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </nav>
-
-            {/*
-              Panel en móvil: va fuera del carrusel porque overflow-x recorta
-              cualquier hijo posicionado en absoluto.
-            */}
-            {openCategory?.items && openCategory.items.length > 0 && (
-              <div className="scroll-slim mt-2 max-h-[320px] overflow-y-auto rounded-lg border border-navy/15 bg-white shadow-lg dark:border-white/15 dark:bg-navy lg:hidden">
-                {dropdownItems(openCategory)}
-              </div>
-            )}
-          </div>
-
-          <div className="flex w-full items-center gap-3 lg:w-auto">
-            <form onSubmit={handleSearch} className="relative flex-1 lg:w-80">
+      <div className="mx-auto max-w-[1500px] px-6 py-5">
+        {/*
+          La búsqueda va en su propia fila: compartiendo línea con las categorías,
+          las seis pastillas quedaban apretadas en dos filas de tres.
+        */}
+        <div className="mb-5 flex items-center gap-3 lg:justify-end">
+          <form onSubmit={handleSearch} className="relative flex-1 lg:w-80 lg:flex-none">
               <input
                 type="search"
                 placeholder="Buscar procesos..."
@@ -250,8 +181,66 @@ export default function Header({ elections }: { elections: Election[] }) {
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
               )}
-            </button>
-          </div>
+          </button>
+        </div>
+
+        {/*
+          Móvil: una sola línea con scroll horizontal. Escritorio: seis columnas
+          iguales a todo el ancho, que es lo que permite que cada panel calce
+          exacto bajo su pastilla.
+        */}
+        <div ref={dropdownRef} className="w-full">
+          <nav className="scrollbar-none -mx-1 flex flex-nowrap items-center gap-3 overflow-x-auto px-1 pb-1 lg:mx-0 lg:grid lg:grid-cols-6 lg:gap-4 lg:overflow-x-visible lg:px-0 lg:pb-0">
+            {categories.map((c) => {
+              if (!c.hasDropdown) {
+                return (
+                  <Link
+                    key={c.id}
+                    href={urlFor(c.id, search)}
+                    className={`${pillBase} ${pillState(c.id)} shrink-0 whitespace-nowrap px-6 py-3.5 lg:w-full`}
+                  >
+                    {c.label}
+                  </Link>
+                );
+              }
+
+              const isOpen = openDropdown === c.id;
+
+              return (
+                <div key={c.id} className="relative shrink-0 lg:w-full">
+                  {/*
+                    Toda la pastilla abre el desplegable. Abierto, pierde el
+                    redondeo inferior para que la lista se lea como una sola
+                    pieza, igual que un <select>.
+                  */}
+                  <button
+                    onClick={() => setOpenDropdown(isOpen ? null : c.id)}
+                    aria-expanded={isOpen}
+                    className={`${pillBase} ${pillState(c.id)} gap-2 whitespace-nowrap px-6 py-3.5 lg:w-full lg:justify-between ${isOpen ? "lg:rounded-b-none" : ""}`}
+                  >
+                    {c.label}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 opacity-60 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}><polyline points="6 9 12 15 18 9" /></svg>
+                  </button>
+
+                  {isOpen && c.items && c.items.length > 0 && (
+                    <div className="scroll-slim absolute left-0 top-full z-[110] hidden max-h-[420px] w-full overflow-y-auto overflow-x-hidden rounded-b-lg border border-navy/15 bg-white shadow-lg dark:border-white/15 dark:bg-navy lg:block">
+                      {dropdownItems(c)}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </nav>
+
+          {/*
+            Panel en móvil: va fuera del carrusel porque overflow-x recorta
+            cualquier hijo posicionado en absoluto.
+          */}
+          {openCategory?.items && openCategory.items.length > 0 && (
+            <div className="scroll-slim mt-2 max-h-[320px] overflow-y-auto rounded-lg border border-navy/15 bg-white shadow-lg dark:border-white/15 dark:bg-navy lg:hidden">
+              {dropdownItems(openCategory)}
+            </div>
+          )}
         </div>
       </div>
     </header>

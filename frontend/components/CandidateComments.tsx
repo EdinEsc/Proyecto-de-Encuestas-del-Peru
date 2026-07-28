@@ -37,16 +37,18 @@ export default function CandidateComments({ candidateId }: { candidateId: string
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-1">
-        <input 
-          className="rounded-xl flex-grow border border-ink-100 dark:border-ink-700 bg-ink-50 dark:bg-ink-800 px-4 py-3 text-xs text-black dark:text-white outline-none focus:bg-white dark:focus:bg-ink-700 focus:border-black dark:focus:border-brand-500 transition-all placeholder:text-ink-400 dark:placeholder:text-ink-500" 
-          placeholder="Escriba su opinión..." 
+      {/* En móvil el input y el botón se apilan: en fila el botón quedaba fuera de la tarjeta. */}
+      <div className="flex flex-col sm:flex-row gap-2">
+        <input
+          className="rounded-xl w-full min-w-0 sm:flex-grow border border-ink-100 dark:border-ink-700 bg-ink-50 dark:bg-ink-800 px-4 py-3 text-xs text-black dark:text-white outline-none focus:bg-white dark:focus:bg-ink-700 focus:border-black dark:focus:border-brand-500 transition-all placeholder:text-ink-400 dark:placeholder:text-ink-500"
+          placeholder="Escriba su opinión..."
           value={newComment}
           onChange={e => setNewComment(e.target.value)}
+          onKeyDown={e => { if (e.key === "Enter") postComment(); }}
           disabled={loading}
         />
-        <button 
-          className="rounded-xl bg-black dark:bg-brand-600 text-white px-6 py-3 text-xs font-bold tracking-wide hover:bg-ink-800 dark:hover:bg-brand-500 transition-colors disabled:opacity-50" 
+        <button
+          className="rounded-xl w-full sm:w-auto shrink-0 bg-black dark:bg-brand-600 text-white px-5 py-3 text-xs font-bold tracking-wide hover:bg-ink-800 dark:hover:bg-brand-500 transition-colors disabled:opacity-50"
           onClick={postComment}
           disabled={loading}
         >

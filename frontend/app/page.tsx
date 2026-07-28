@@ -30,7 +30,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
   });
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-14">
+    <div className="mx-auto max-w-[1500px] px-6 py-14">
       <main>
         <div className="mb-8 flex items-baseline justify-between gap-4">
           <div>
