@@ -46,6 +46,12 @@ export type Comment = {
   created_at: string;
 };
 
+/** Respuesta paginada de /candidates/:id/comments */
+export type CommentPage = {
+  items: Comment[];
+  total: number;
+};
+
 export async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
     ...options,

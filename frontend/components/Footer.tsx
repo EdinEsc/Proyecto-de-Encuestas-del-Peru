@@ -3,7 +3,12 @@
 import Link from "next/link";
 import { LogoMark } from "@/components/Logo";
 
-export default function Footer() {
+/*
+  `withNav` en falso para las páginas de enlace compartido (/vote/[slug]): la
+  marca y el cierre son los mismos, pero allí no se ofrece salida hacia otras
+  encuestas porque esa página está pensada para votar y nada más.
+*/
+export default function Footer({ withNav = true }: { withNav?: boolean }) {
   return (
     <footer className="mt-32 bg-navy py-16 text-white">
       <div className="mx-auto max-w-[1500px] px-6">
@@ -24,15 +29,17 @@ export default function Footer() {
             </p>
           </div>
 
-          <div>
-            <h3 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Explorar</h3>
-            <ul className="space-y-3 text-sm text-white/60">
-              <li><Link href="/" className="transition-colors hover:text-gold">Inicio</Link></li>
-              <li><Link href="/?category=presidencial" className="transition-colors hover:text-gold">Presidencial</Link></li>
-              <li><Link href="/?category=regionales" className="transition-colors hover:text-gold">Regionales</Link></li>
-              <li><Link href="/?category=lima_distritos" className="transition-colors hover:text-gold">Distritos</Link></li>
-            </ul>
-          </div>
+          {withNav && (
+            <div>
+              <h3 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Explorar</h3>
+              <ul className="space-y-3 text-sm text-white/60">
+                <li><Link href="/" className="transition-colors hover:text-gold">Inicio</Link></li>
+                <li><Link href="/?category=presidencial" className="transition-colors hover:text-gold">Presidencial</Link></li>
+                <li><Link href="/?category=regionales" className="transition-colors hover:text-gold">Regionales</Link></li>
+                <li><Link href="/?category=lima_distritos" className="transition-colors hover:text-gold">Distritos</Link></li>
+              </ul>
+            </div>
+          )}
         </div>
 
         <div className="mt-16 flex flex-col items-center justify-between gap-6 border-t border-white/15 pt-8 text-sm text-white/50 md:flex-row">

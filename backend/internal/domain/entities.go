@@ -97,8 +97,8 @@ type VoteRepository interface {
 
 type CommentRepository interface {
 	Create(c Comment) (*Comment, error)
-	ListByCandidate(candidateID string) ([]Comment, error)
-	CountRecentByIP(ip string, since time.Time) (int64, error)
+	ListByCandidate(candidateID string, limit, offset int) ([]Comment, error)
+	CountByCandidate(candidateID string) (int64, error)
 }
 
 type AdminRepository interface {

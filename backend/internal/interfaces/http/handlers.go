@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -107,10 +108,6 @@ func (h Handler) Comment(c *gin.Context) {
 		return
 	}
 	comment, err := h.CommentUC.Comment(input, RealIP(c))
-	if errors.Is(err, usecases.ErrCommentRateLimit) {
-		c.JSON(429, gin.H{"error": err.Error()})
-		return
-	}
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
@@ -307,13 +304,49 @@ func (h Handler) DeleteCandidate(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+/*
+Paginado: la tarjeta de candidato solo pide ?limit=1 para la vista previa y el
+contador, y el panel de opiniones va trayendo páginas. Antes se devolvían hasta
+100 comentarios por candidato en la carga inicial de la elección.
+*/
 func (h Handler) ListComments(c *gin.Context) {
-	list, err := h.Comments.ListByCandidate(c.Param("candidate_id"))
+	candidateID := c.Param("candidate_id")
+
+	limit := queryInt(c, "limit", 20)
+	if limit < 1 {
+		limit = 1
+	}
+	if limit > 100 {
+		limit = 100
+	}
+	offset := queryInt(c, "offset", 0)
+	if offset < 0 {
+		offset = 0
+	}
+
+	list, err := h.Comments.ListByCandidate(candidateID, limit, offset)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, list)
+	total, err := h.Comments.CountByCandidate(candidateID)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"items": list, "total": total})
+}
+
+func queryInt(c *gin.Context, key string, fallback int) int {
+	raw := c.Query(key)
+	if raw == "" {
+		return fallback
+	}
+	v, err := strconv.Atoi(raw)
+	if err != nil {
+		return fallback
+	}
+	return v
 }
 
 func (h Handler) GetElectionBySlug(c *gin.Context) {

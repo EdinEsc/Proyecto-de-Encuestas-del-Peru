@@ -5,6 +5,7 @@ import Link from "next/link";
 import { api, Candidate, Election, getBrowserId, getImageUrl } from "@/lib/api";
 import CandidateComments from "@/components/CandidateComments";
 import LiveRanking from "@/components/LiveRanking";
+import Toast from "@/components/Toast";
 
 declare global {
   interface Window {
@@ -18,9 +19,12 @@ export default function ElectionPage({ params }: { params: Promise<{ id: string 
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [results, setResults] = useState<any>(null);
   const [message, setMessage] = useState("");
+  // El tono del aviso no se puede deducir de `voted`: si el backend rechaza el
+  // voto por IP repetida, `voted` sigue en falso y el mensaje es un error.
+  const [messageType, setMessageType] = useState<"success" | "error">("success");
   const [loading, setLoading] = useState(false);
   const [voted, setVoted] = useState(false);
-  
+
   useEffect(() => {
     if (!id) return;
     setVoted(localStorage.getItem(`voted:election:${id}`) === "true");
@@ -51,12 +55,14 @@ export default function ElectionPage({ params }: { params: Promise<{ id: string 
       });
       localStorage.setItem(`voted:election:${id}`, "true");
       setVoted(true);
+      setMessageType("success");
       setMessage("¡Tu participación ha sido registrada con éxito!");
-      
+
       // Update results immediately after voting
       api<any>(`/results/${id}`).then(setResults).catch(err => console.error(err));
-    } catch (e: any) { 
-      setMessage(e.message || "Error al registrar el voto"); 
+    } catch (e: any) {
+      setMessageType("error");
+      setMessage(e.message || "Error al registrar el voto");
     } finally {
       setLoading(false);
     }
@@ -70,8 +76,10 @@ export default function ElectionPage({ params }: { params: Promise<{ id: string 
     return { votes: item.votes, percentage: percentage.toFixed(1) };
   };
 
+  // En móvil el margen lateral se reduce (px-4): son los píxeles que ganan las
+  // tarjetas de candidato, que a dos columnas se quedaban muy angostas.
   return (
-    <div className="max-w-[1500px] mx-auto px-6 pt-8 pb-20 min-h-screen">
+    <div className="max-w-[1500px] mx-auto px-4 sm:px-6 pt-8 pb-20 min-h-screen">
       <div className="mb-12">
         <Link href="/" className="text-xs font-bold tracking-wide text-ink-600 dark:text-ink-400 hover:text-black dark:hover:text-white mb-6 inline-block transition-colors">
           ← Volver al inicio
@@ -127,7 +135,8 @@ export default function ElectionPage({ params }: { params: Promise<{ id: string 
       </div>
 
       <div className="grid lg:grid-cols-[minmax(0,1fr)_500px] xl:grid-cols-[minmax(0,1fr)_560px] gap-8 lg:gap-10 items-start">
-        <section className="grid grid-cols-2 gap-5 md:gap-6">
+        {/* Separación mínima en móvil: el hueco entre tarjetas es ancho perdido */}
+        <section className="grid grid-cols-2 gap-2 sm:gap-5 md:gap-6">
           {candidates?.map(c => {
             const stats = getCandidateStats(c.id);
             return (
@@ -186,7 +195,7 @@ export default function ElectionPage({ params }: { params: Promise<{ id: string 
                     </button>
 
                     <div className="pt-4 border-t border-mist dark:border-white/10">
-                      <CandidateComments candidateId={c.id} />
+                      <CandidateComments candidateId={c.id} candidateName={c.name} />
                     </div>
                   </div>
                 </div>
@@ -195,18 +204,15 @@ export default function ElectionPage({ params }: { params: Promise<{ id: string 
           })}
         </section>
 
-        <LiveRanking results={results} isActive={election?.is_active} className="order-first lg:order-none" />
+        {/*
+          En móvil el escrutinio va después de las tarjetas: lo primero que se
+          ve al abrir debe ser a quién se vota, no el resultado.
+        */}
+        <LiveRanking results={results} isActive={election?.is_active} className="order-last lg:order-none" />
       </div>
 
       {message && (
-        <div className="fixed bottom-8 right-8 z-[200] max-w-sm">
-          <div className={`flex items-start gap-3 rounded-xl px-5 py-4 text-sm font-medium text-white shadow-lg ${voted ? "bg-brand-600" : "bg-red-600"}`}>
-            <span>{message}</span>
-            <button onClick={() => setMessage("")} aria-label="Cerrar aviso" className="shrink-0 opacity-70 hover:opacity-100">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-          </div>
-        </div>
+        <Toast message={message} variant={messageType} onClose={() => setMessage("")} />
       )}
 
     </div>

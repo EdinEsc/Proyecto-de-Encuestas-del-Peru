@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Election } from "@/lib/api";
 import { matchesCategory } from "@/lib/categories";
 import { useTheme } from "@/components/ThemeProvider";
-import Logo from "@/components/Logo";
+import HeaderHero from "@/components/HeaderHero";
 
 type DropdownCategory = {
   id: string;
@@ -19,6 +19,12 @@ export default function Header({ elections }: { elections: Election[] }) {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLElement>(null);
+  // En móvil la barra de categorías se desliza, pero sin barra de scroll no hay
+  // forma de saberlo: estos dos flags encienden la flecha del lado que aún tiene
+  // contenido oculto.
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { theme, toggleTheme } = useTheme();
@@ -38,6 +44,31 @@ export default function Header({ elections }: { elections: Election[] }) {
   useEffect(() => {
     setSearch(searchParams.get("q") || "");
   }, [searchParams]);
+
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+
+    // 4px de holgura: el scroll fraccionario nunca llega al extremo exacto.
+    const update = () => {
+      setCanScrollLeft(el.scrollLeft > 4);
+      setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+    };
+
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    // El ancho útil cambia al girar el móvil y al terminar de cargar la fuente.
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => {
+      el.removeEventListener("scroll", update);
+      observer.disconnect();
+    };
+  }, [elections]);
+
+  const scrollNav = (direction: 1 | -1) => {
+    navRef.current?.scrollBy({ left: direction * 180, behavior: "smooth" });
+  };
 
   // La categoría y la búsqueda deben convivir en la URL: si se pierde una, la
   // otra deja de tener sentido (buscar volvía a "presidencial" y no encontraba nada).
@@ -119,23 +150,7 @@ export default function Header({ elections }: { elections: Election[] }) {
   return (
     <header className="relative z-40 w-full border-b border-ink-100 bg-white dark:border-white/10 dark:bg-ink-950">
       {/* Hero */}
-      <div className="relative overflow-hidden">
-        <img
-          src="/banner.png"
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-ink-950/95 via-ink-900/85 to-brand-800/80" />
-        <div className="relative z-10 mx-auto flex max-w-[1500px] flex-col items-center px-6 py-12 text-center">
-          <Link href="/" className="transition-opacity hover:opacity-90">
-            <Logo />
-          </Link>
-          <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-white/70">
-            Participación ciudadana medida con rigor. Consulta procesos electorales,
-            emite tu voto y sigue los resultados en tiempo real.
-          </p>
-        </div>
-      </div>
+      <HeaderHero />
 
       {/* Navegación */}
       <div className="mx-auto max-w-[1500px] px-6 py-5">
@@ -190,7 +205,8 @@ export default function Header({ elections }: { elections: Election[] }) {
           exacto bajo su pastilla.
         */}
         <div ref={dropdownRef} className="w-full">
-          <nav className="scrollbar-none -mx-1 flex flex-nowrap items-center gap-3 overflow-x-auto px-1 pb-1 lg:mx-0 lg:grid lg:grid-cols-6 lg:gap-4 lg:overflow-x-visible lg:px-0 lg:pb-0">
+          <div className="relative lg:static">
+          <nav ref={navRef} className="scrollbar-none -mx-1 flex flex-nowrap items-center gap-3 overflow-x-auto px-1 pb-1 lg:mx-0 lg:grid lg:grid-cols-6 lg:gap-4 lg:overflow-x-visible lg:px-0 lg:pb-0">
             {categories.map((c) => {
               if (!c.hasDropdown) {
                 return (
@@ -231,6 +247,41 @@ export default function Header({ elections }: { elections: Election[] }) {
               );
             })}
           </nav>
+
+          {/*
+            Señales de deslizamiento. El degradado corta la pastilla a mitad
+            para que se lea "hay más" aunque no se mire la flecha; la flecha
+            además desplaza al tocarla. Solo en móvil: en escritorio caben las
+            seis columnas.
+          */}
+          {canScrollLeft && (
+            <>
+              <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-14 bg-gradient-to-r from-white via-white/85 to-transparent dark:from-ink-950 dark:via-ink-950/85 lg:hidden" />
+              <button
+                type="button"
+                onClick={() => scrollNav(-1)}
+                aria-label="Ver categorías anteriores"
+                className="absolute left-0 top-1/2 z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-mist bg-white text-navy shadow-card transition-colors hover:bg-mist dark:border-white/15 dark:bg-navy dark:text-white dark:hover:bg-white/10 lg:hidden"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+              </button>
+            </>
+          )}
+
+          {canScrollRight && (
+            <>
+              <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-14 bg-gradient-to-l from-white via-white/85 to-transparent dark:from-ink-950 dark:via-ink-950/85 lg:hidden" />
+              <button
+                type="button"
+                onClick={() => scrollNav(1)}
+                aria-label="Ver más categorías"
+                className="absolute right-0 top-1/2 z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-mist bg-white text-navy shadow-card transition-colors hover:bg-mist dark:border-white/15 dark:bg-navy dark:text-white dark:hover:bg-white/10 lg:hidden"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+              </button>
+            </>
+          )}
+          </div>
 
           {/*
             Panel en móvil: va fuera del carrusel porque overflow-x recorta

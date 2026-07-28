@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -177,8 +176,8 @@ func (r CommentRepo) Create(c domain.Comment) (*domain.Comment, error) {
 	err := r.DB.QueryRow(context.Background(), `INSERT INTO comments(candidate_id,content,ip_address) VALUES($1,$2,$3::inet) RETURNING id,created_at`, c.CandidateID, c.Content, c.IPAddress).Scan(&c.ID, &c.CreatedAt)
 	return &c, err
 }
-func (r CommentRepo) ListByCandidate(candidateID string) ([]domain.Comment, error) {
-	rows, err := r.DB.Query(context.Background(), `SELECT id,candidate_id,content,ip_address::text,created_at FROM comments WHERE candidate_id=$1 ORDER BY created_at DESC LIMIT 100`, candidateID)
+func (r CommentRepo) ListByCandidate(candidateID string, limit, offset int) ([]domain.Comment, error) {
+	rows, err := r.DB.Query(context.Background(), `SELECT id,candidate_id,content,ip_address::text,created_at FROM comments WHERE candidate_id=$1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`, candidateID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -193,9 +192,10 @@ func (r CommentRepo) ListByCandidate(candidateID string) ([]domain.Comment, erro
 	}
 	return list, rows.Err()
 }
-func (r CommentRepo) CountRecentByIP(ip string, since time.Time) (int64, error) {
+
+func (r CommentRepo) CountByCandidate(candidateID string) (int64, error) {
 	var count int64
-	err := r.DB.QueryRow(context.Background(), `SELECT COUNT(*) FROM comments WHERE ip_address=$1::inet AND created_at>$2`, ip, since).Scan(&count)
+	err := r.DB.QueryRow(context.Background(), `SELECT COUNT(*) FROM comments WHERE candidate_id=$1`, candidateID).Scan(&count)
 	return count, err
 }
 

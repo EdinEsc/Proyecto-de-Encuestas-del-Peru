@@ -13,7 +13,6 @@ var (
 	ErrElectionClosed    = errors.New("la elección está cerrada")
 	ErrCandidateMismatch = errors.New("el candidato no pertenece a esta elección")
 	ErrCaptcha           = errors.New("captcha inválido")
-	ErrCommentRateLimit  = errors.New("solo puedes comentar una vez cada 2 minutos")
 )
 
 type VoteUsecase struct {
@@ -83,12 +82,6 @@ func (u CommentUsecase) Comment(input CommentInput, ip string) (*domain.Comment,
 	if err != nil {
 		return nil, err
 	}
-	count, err := u.Comments.CountRecentByIP(ip, time.Now().Add(-2*time.Minute))
-	if err != nil {
-		return nil, err
-	}
-	if count > 0 {
-		return nil, ErrCommentRateLimit
-	}
+	// Sin límite de frecuencia: se puede comentar cuantas veces haga falta.
 	return u.Comments.Create(domain.Comment{CandidateID: input.CandidateID, Content: strings.TrimSpace(input.Content), IPAddress: ip})
 }
