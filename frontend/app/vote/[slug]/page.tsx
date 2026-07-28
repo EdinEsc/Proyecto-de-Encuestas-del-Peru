@@ -142,7 +142,7 @@ export default function VotePage({ params }: { params: Promise<{ slug: string }>
               */}
               <div className="rounded-xl w-full text-center px-6 py-10 md:px-12 md:py-12 bg-white dark:bg-ink-800/50 border border-ink-100 dark:border-ink-700 shadow-sm">
                 <h3 className="text-2xl md:text-3xl font-semibold tracking-tight italic mb-6 text-black dark:text-white">
-                  "¿Por cuál de los siguientes pre candidatos a {election.region_name || "la Nación"} votaría?"
+                  "¿Por cuál de los siguientes candidatos a {election.region_name || "la Nación"} votaría?"
                 </h3>
                 <div className="rounded-lg h-1 w-20 bg-brand-600 mx-auto"></div>
                 <h3 className="mx-auto mt-6 max-w-2xl text-base md:text-lg font-medium italic leading-snug text-ink-600 dark:text-ink-300">
