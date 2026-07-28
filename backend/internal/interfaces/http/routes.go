@@ -15,8 +15,6 @@ func RegisterRoutes(r *gin.Engine, h Handler, jwt auth.JWTService) {
 	r.GET("/election-by-slug/:slug", h.GetElectionBySlug)
 	r.POST("/vote", h.Vote)
 	r.GET("/results/:election_id", h.Results)
-	r.POST("/comments", h.Comment)
-	r.GET("/candidates/:candidate_id/comments", h.ListComments)
 	r.GET("/regions", h.ListRegions)
 	r.GET("/election-types", h.ListElectionTypes)
 

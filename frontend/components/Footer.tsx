@@ -13,10 +13,10 @@ export default function Footer({ withNav = true }: { withNav?: boolean }) {
     <footer className="mt-32 bg-navy py-16 text-white">
       <div className="mx-auto max-w-[1500px] px-6">
         {/*
-          Solo queda "Explorar": las columnas de Legalidad y Contacto, y los
-          iconos sociales, eran todos href="#" y no llevaban a ninguna parte.
+          Quedan "Seguridad" y "Explorar": las columnas de Legalidad y Contacto,
+          y los iconos sociales, eran todos href="#" y no llevaban a ninguna parte.
         */}
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-4">
           {/* Marca */}
           <div className="col-span-1 md:col-span-2">
             {/* El isotipo tiene trazos negros que desaparecen sobre el marino */}
@@ -27,6 +27,15 @@ export default function Footer({ withNav = true }: { withNav?: boolean }) {
               Plataforma independiente dedicada a la transparencia democrática. Un espacio
               seguro para el ejercicio de la participación ciudadana digital.
             </p>
+          </div>
+
+          {/*
+            La regla de seguridad ya no va bajo el banner de cada proceso: es la
+            misma para todos, así que se enuncia una sola vez en el pie.
+          */}
+          <div>
+            <h3 className="mb-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold">Seguridad</h3>
+            <p className="text-sm leading-relaxed text-white/60">1 voto por IP y dispositivo</p>
           </div>
 
           {withNav && (

@@ -65,7 +65,7 @@ export default function LiveRanking({
                   <img
                     src={getImageUrl(r.image_url)}
                     alt={r.name}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-contain"
                   />
                 </div>
                 <p className="min-w-0 flex-grow truncate text-base font-semibold text-navy dark:text-white">

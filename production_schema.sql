@@ -57,18 +57,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS uniq_vote_browser_election
 ON votes (election_id, browser_id)
 WHERE browser_id IS NOT NULL AND browser_id <> '';
 
-CREATE TABLE IF NOT EXISTS comments (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  candidate_id UUID NOT NULL REFERENCES candidates(id) ON DELETE CASCADE,
-  content VARCHAR(500) NOT NULL,
-  ip_address INET NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
 CREATE INDEX IF NOT EXISTS idx_elections_active ON elections(is_active, end_date);
 CREATE INDEX IF NOT EXISTS idx_candidates_election ON candidates(election_id);
 CREATE INDEX IF NOT EXISTS idx_votes_election ON votes(election_id);
-CREATE INDEX IF NOT EXISTS idx_comments_candidate_created ON comments(candidate_id, created_at DESC);
 
 INSERT INTO election_types (name)
 VALUES ('presidencial'), ('regional'), ('provincial'), ('distrital')

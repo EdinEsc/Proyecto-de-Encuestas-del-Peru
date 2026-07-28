@@ -32,19 +32,17 @@ func main() {
 	electionRepo := postgres.ElectionRepo{Base: base}
 	candidateRepo := postgres.CandidateRepo{Base: base}
 	voteRepo := postgres.VoteRepo{Base: base}
-	commentRepo := postgres.CommentRepo{Base: base}
 	adminRepo := postgres.AdminRepo{Base: base}
 	catalogRepo := postgres.CatalogRepo{Base: base}
 	jwtSvc := auth.JWTService{Secret: jwtSecret}
 	captchaSvc := captcha.RecaptchaVerifier{Secret: os.Getenv("RECAPTCHA_SECRET")}
 
 	voteUC := usecases.VoteUsecase{Elections: electionRepo, Candidates: candidateRepo, Votes: voteRepo, Captcha: captchaSvc}
-	commentUC := usecases.CommentUsecase{Comments: commentRepo, Candidates: candidateRepo}
 	adminUC := usecases.AdminUsecase{Admins: adminRepo, Catalog: catalogRepo, Elections: electionRepo, Candidates: candidateRepo, Votes: voteRepo, JWT: jwtSvc}
 
 	handler := httpapi.Handler{
 		Elections: electionRepo, Candidates: candidateRepo, Votes: voteRepo,
-		Comments: commentRepo, Catalog: catalogRepo, VoteUC: voteUC, CommentUC: commentUC, AdminUC: adminUC,
+		Catalog: catalogRepo, VoteUC: voteUC, AdminUC: adminUC,
 	}
 
 	frontendOrigin := strings.TrimSpace(os.Getenv("FRONTEND_ORIGIN"))

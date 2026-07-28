@@ -37,21 +37,6 @@ export type Results = {
   ranking: ResultItem[];
 };
 
-
-export type Comment = {
-  id: string;
-  candidate_id: string;
-  content: string;
-  ip_address: string;
-  created_at: string;
-};
-
-/** Respuesta paginada de /candidates/:id/comments */
-export type CommentPage = {
-  items: Comment[];
-  total: number;
-};
-
 /*
   `revalidate` (en segundos) cachea la respuesta en el servidor de Next: durante
   ese lapso las visitas se sirven de la caché y no se toca la API ni la base.

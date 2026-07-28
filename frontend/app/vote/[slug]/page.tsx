@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback, use } from "react";
 import { api, Candidate, Election, getBrowserId, getImageUrl } from "@/lib/api";
 import { usePolling } from "@/lib/usePolling";
-import CandidateComments from "@/components/CandidateComments";
 import LiveRanking from "@/components/LiveRanking";
 import HeaderHero from "@/components/HeaderHero";
 import Footer from "@/components/Footer";
@@ -108,48 +107,47 @@ export default function VotePage({ params }: { params: Promise<{ slug: string }>
         ) : (
           <>
             <div className="mb-16">
-              <div className="flex items-center gap-6 mb-8">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-8">
                 <span className="rounded-xl text-xs font-semibold tracking-[0.08em] bg-brand-600 text-white px-3 py-1">
                   {election.election_type || "Proceso Oficial"}
                 </span>
                 <span className="text-xs font-semibold tracking-[0.1em] text-ink-800 dark:text-ink-200 border-l border-ink-300 dark:border-ink-600 pl-6">
                   {election.is_active ? 'PROCESO EN CURSO' : 'ESCRUTINIO FINALIZADO'}
                 </span>
+                {/*
+                  La vigencia vive aquí, junto al estado: es el dato que dice si
+                  todavía se puede votar, y bajo el banner ocupaba una fila entera.
+                */}
+                {election.created_at && (
+                  <span className="text-xs font-bold tracking-[0.08em] text-ink-600 dark:text-ink-400 ml-auto whitespace-nowrap">
+                    Publicado: {new Date(election.created_at).toLocaleDateString()}
+                    {election.end_date && <> — hasta el {new Date(election.end_date).toLocaleDateString()}</>}
+                  </span>
+                )}
               </div>
 
               <h2 className="text-5xl font-semibold tracking-tight mb-10 leading-[1.1] text-black dark:text-white">{election.title}</h2>
 
+              {/* Portada más baja: el banner no debe empujar las tarjetas fuera de la primera pantalla */}
               {election.banner_url && (
-                <div className="rounded-xl w-full h-[400px] bg-ink-50 dark:bg-ink-800 mb-10 overflow-hidden border border-ink-100 dark:border-ink-700 shadow-xl">
+                <div className="rounded-xl w-full h-[200px] sm:h-[260px] md:h-[320px] bg-ink-50 dark:bg-ink-800 mb-10 overflow-hidden border border-ink-100 dark:border-ink-700 shadow-xl">
                   <img src={getImageUrl(election.banner_url)} alt="Portada" className="rounded-lg w-full h-full object-cover" />
                 </div>
               )}
 
-              {/* Descripción y datos del proceso: una sola fila a todo el ancho bajo el banner. */}
-              <div className="rounded-xl bg-ink-50 dark:bg-ink-800/50 border border-ink-100 dark:border-ink-700 p-6 md:p-8 mb-8 flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10">
-                <p className="text-lg md:text-xl text-black dark:text-white font-medium leading-snug italic border-l-4 border-brand-600 pl-6 lg:flex-1">
-                  {election.description || "Su voto es fundamental para la transparencia democrática."}
-                </p>
-
-                <div className="flex flex-wrap gap-x-10 gap-y-4 lg:border-l lg:border-ink-200 lg:dark:border-ink-700 lg:pl-10">
-                  <div>
-                    <span className="text-[10px] font-semibold tracking-[0.12em] text-brand-600 dark:text-brand-400">VIGENCIA</span>
-                    <p className="text-sm font-semibold text-ink-800 dark:text-ink-200 whitespace-nowrap">
-                      {new Date(election.created_at).toLocaleDateString()} — {new Date(election.end_date).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-semibold tracking-[0.12em] text-brand-600 dark:text-brand-400">SEGURIDAD</span>
-                    <p className="text-sm font-semibold text-ink-800 dark:text-ink-200">1 voto por IP y dispositivo</p>
-                  </div>
-                </div>
-              </div>
-
+              {/*
+                La descripción acompaña a la pregunta dentro de la misma tarjeta: la
+                fila que había bajo el banner (descripción + vigencia + seguridad) se
+                repartió entre la cabecera y el pie del sitio.
+              */}
               <div className="rounded-xl w-full text-center px-6 py-10 md:px-12 md:py-12 bg-white dark:bg-ink-800/50 border border-ink-100 dark:border-ink-700 shadow-sm">
                 <h3 className="text-2xl md:text-3xl font-semibold tracking-tight italic mb-6 text-black dark:text-white">
                   "¿Por cuál de los siguientes pre candidatos a {election.region_name || "la Nación"} votaría?"
                 </h3>
                 <div className="rounded-lg h-1 w-20 bg-brand-600 mx-auto"></div>
+                <h3 className="mx-auto mt-6 max-w-2xl text-base md:text-lg font-medium italic leading-snug text-ink-600 dark:text-ink-300">
+                  {election.description || "Su voto es fundamental para la transparencia democrática."}
+                </h3>
               </div>
             </div>
 
@@ -160,8 +158,12 @@ export default function VotePage({ params }: { params: Promise<{ slug: string }>
                   const stats = getCandidateStats(c.id);
                   return (
                     <div key={c.id} className="rounded-xl group flex flex-col bg-white dark:bg-ink-800/50 border border-ink-100 dark:border-ink-700 overflow-hidden hover:border-brand-600 dark:hover:border-brand-500 transition-all duration-500">
+                      {/*
+                        `object-contain`: la foto se ve entera. Recortar al centro
+                        cortaba la cabeza en los retratos verticales.
+                      */}
                       <div className="relative h-40 sm:h-52 md:h-64 bg-ink-50 dark:bg-ink-800 overflow-hidden">
-                        <img src={getImageUrl(c.image_url)} alt={c.name} className="rounded-lg w-full h-full object-cover transition-transform duration-700 transform group-hover:scale-105" />
+                        <img src={getImageUrl(c.image_url)} alt={c.name} className="w-full h-full object-contain transition-transform duration-700 transform group-hover:scale-105" />
                         <div className="absolute top-2 right-2 md:top-3 md:right-3 flex flex-col items-end gap-1">
                           <span className="rounded-xl bg-black text-white px-2 py-1 md:px-3 md:py-1.5 text-xs md:text-[13px] font-semibold tracking-tight shadow-xl">
                             {stats.percentage}%
@@ -190,23 +192,17 @@ export default function VotePage({ params }: { params: Promise<{ slug: string }>
                           </a>
                         )}
 
-                        <div className="flex flex-col gap-3 mt-auto">
-                          <button
-                            className={`w-full rounded-xl py-3.5 text-xs font-semibold tracking-[0.1em] transition-all disabled:opacity-50 border-2 ${
-                              voted
-                                ? "border-ink-100 dark:border-ink-700 text-ink-300 dark:text-ink-600 cursor-not-allowed"
-                                : "border-black dark:border-brand-600 bg-black dark:bg-brand-600 text-white hover:bg-brand-600 hover:border-brand-600"
-                            }`}
-                            disabled={voted || !election.is_active || loading}
-                            onClick={() => vote(c.id)}
-                          >
-                            {loading ? 'Procesando...' : voted ? 'YA VOTASTE' : 'REGISTRAR MI VOTO'}
-                          </button>
-
-                          <div className="pt-4 border-t border-ink-50 dark:border-ink-700">
-                            <CandidateComments candidateId={c.id} candidateName={c.name} />
-                          </div>
-                        </div>
+                        <button
+                          className={`mt-auto w-full rounded-xl py-3.5 text-xs font-semibold tracking-[0.1em] transition-all disabled:opacity-50 border-2 ${
+                            voted
+                              ? "border-ink-100 dark:border-ink-700 text-ink-300 dark:text-ink-600 cursor-not-allowed"
+                              : "border-black dark:border-brand-600 bg-black dark:bg-brand-600 text-white hover:bg-brand-600 hover:border-brand-600"
+                          }`}
+                          disabled={voted || !election.is_active || loading}
+                          onClick={() => vote(c.id)}
+                        >
+                          {loading ? 'Procesando...' : voted ? 'YA VOTASTE' : 'REGISTRAR MI VOTO'}
+                        </button>
                       </div>
                     </div>
                   );

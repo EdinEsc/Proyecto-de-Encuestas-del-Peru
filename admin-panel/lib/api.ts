@@ -37,15 +37,6 @@ export type Results = {
   ranking: ResultItem[];
 };
 
-
-export type Comment = {
-  id: string;
-  candidate_id: string;
-  content: string;
-  ip_address: string;
-  created_at: string;
-};
-
 export type Region = {
   id: string;
   name: string;

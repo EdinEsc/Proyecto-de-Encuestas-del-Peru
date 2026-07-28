@@ -55,14 +55,6 @@ type Vote struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-type Comment struct {
-	ID          string    `json:"id"`
-	CandidateID string    `json:"candidate_id"`
-	Content     string    `json:"content"`
-	IPAddress   string    `json:"ip_address"`
-	CreatedAt   time.Time `json:"created_at"`
-}
-
 type ResultItem struct {
 	CandidateID string `json:"candidate_id"`
 	Name        string `json:"name"`
@@ -93,12 +85,6 @@ type VoteRepository interface {
 	Create(v Vote) (*Vote, error)
 	AddManualVotes(electionID, candidateID string, count int) error
 	Results(electionID string) ([]ResultItem, error)
-}
-
-type CommentRepository interface {
-	Create(c Comment) (*Comment, error)
-	ListByCandidate(candidateID string, limit, offset int) ([]Comment, error)
-	CountByCandidate(candidateID string) (int64, error)
 }
 
 type AdminRepository interface {

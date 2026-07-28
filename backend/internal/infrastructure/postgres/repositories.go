@@ -14,7 +14,6 @@ type Base struct{ DB *pgxpool.Pool }
 type ElectionRepo struct{ Base }
 type CandidateRepo struct{ Base }
 type VoteRepo struct{ Base }
-type CommentRepo struct{ Base }
 type AdminRepo struct{ Base }
 type CatalogRepo struct{ Base }
 
@@ -170,33 +169,6 @@ func (r VoteRepo) Results(electionID string) ([]domain.ResultItem, error) {
 		list = append(list, it)
 	}
 	return list, rows.Err()
-}
-
-func (r CommentRepo) Create(c domain.Comment) (*domain.Comment, error) {
-	err := r.DB.QueryRow(context.Background(), `INSERT INTO comments(candidate_id,content,ip_address) VALUES($1,$2,$3::inet) RETURNING id,created_at`, c.CandidateID, c.Content, c.IPAddress).Scan(&c.ID, &c.CreatedAt)
-	return &c, err
-}
-func (r CommentRepo) ListByCandidate(candidateID string, limit, offset int) ([]domain.Comment, error) {
-	rows, err := r.DB.Query(context.Background(), `SELECT id,candidate_id,content,ip_address::text,created_at FROM comments WHERE candidate_id=$1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`, candidateID, limit, offset)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	list := []domain.Comment{}
-	for rows.Next() {
-		var cm domain.Comment
-		if err := rows.Scan(&cm.ID, &cm.CandidateID, &cm.Content, &cm.IPAddress, &cm.CreatedAt); err != nil {
-			return nil, err
-		}
-		list = append(list, cm)
-	}
-	return list, rows.Err()
-}
-
-func (r CommentRepo) CountByCandidate(candidateID string) (int64, error) {
-	var count int64
-	err := r.DB.QueryRow(context.Background(), `SELECT COUNT(*) FROM comments WHERE candidate_id=$1`, candidateID).Scan(&count)
-	return count, err
 }
 
 func (r AdminRepo) FindByEmail(email string) (*domain.User, error) {

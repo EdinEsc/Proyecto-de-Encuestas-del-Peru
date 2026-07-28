@@ -543,7 +543,7 @@ function ElectionManagement({ onClose, onDeleteElection, onDeleteCandidate, refr
   const [editElection, setEditElection] = useState<any>(null);
   const [editCandidate, setEditCandidate] = useState<any>(null);
 
-  const [modal, setModal] = useState<{ isOpen: boolean, type: 'election' | 'candidate' | 'comment' | 'vote', id: string, extraId?: string } | null>(null);
+  const [modal, setModal] = useState<{ isOpen: boolean, type: 'election' | 'candidate' | 'vote', id: string, extraId?: string } | null>(null);
 
   const refresh = () => {
     api<any[]>("/admin/elections", { headers: authHeaders() }).then(d => setAllElections(d || [])).catch(() => {});
@@ -790,7 +790,6 @@ function ElectionManagement({ onClose, onDeleteElection, onDeleteCandidate, refr
                                     </div>
                                     <div className="flex shrink-0 items-center gap-1.5">
                                       <button className="btn-ghost btn-sm" onClick={() => setModal({ isOpen: true, type: 'vote', id: c.id, extraId: e.id })}>Añadir votos</button>
-                                      <button className="btn-ghost btn-sm" onClick={() => setModal({ isOpen: true, type: 'comment', id: c.id })}>Comentar</button>
                                       <button className="btn-secondary btn-sm" onClick={() => setEditCandidate(c)}>Editar</button>
                                       <button className="btn-danger btn-sm" onClick={() => setModal({ isOpen: true, type: 'candidate', id: c.id, extraId: e.id })}>Remover</button>
                                     </div>
@@ -830,18 +829,6 @@ function ElectionManagement({ onClose, onDeleteElection, onDeleteCandidate, refr
               body: JSON.stringify({ election_id: modal.extraId, candidate_id: modal.id, count }),
             })
               .then(() => { notify(`${count} voto(s) añadidos`, "success"); setModal(null); refresh(); })
-              .catch((e: any) => notify(e.message, "error"));
-          }}
-        />
-      )}
-
-      {/* Comentario */}
-      {modal?.type === 'comment' && (
-        <CommentModal
-          onCancel={() => setModal(null)}
-          onConfirm={(content) => {
-            api(`/comments`, { method: "POST", body: JSON.stringify({ candidate_id: modal.id, content }) })
-              .then(() => { notify("Comentario publicado", "success"); setModal(null); })
               .catch((e: any) => notify(e.message, "error"));
           }}
         />
@@ -888,41 +875,6 @@ function VoteModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: (
         <div className="panel-footer">
           <button type="button" className="btn-secondary" onClick={onCancel}>Cancelar</button>
           <button type="submit" className="btn-primary">Añadir</button>
-        </div>
-      </form>
-    </div>
-  );
-}
-
-function CommentModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: (content: string) => void }) {
-  const [content, setContent] = useState("");
-
-  return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4" role="dialog" aria-modal="true">
-      <div className="absolute inset-0 bg-ink-950/40" onClick={onCancel} />
-      <form
-        className="panel relative w-full max-w-lg shadow-lg"
-        onSubmit={e => { e.preventDefault(); if (content.trim()) onConfirm(content.trim()); }}
-      >
-        <div className="panel-header">
-          <h3 className="panel-title">Nuevo comentario</h3>
-        </div>
-        <div className="panel-body">
-          <div className="field">
-            <label htmlFor="comment-content" className="label">Comentario</label>
-            <textarea
-              id="comment-content"
-              className="textarea"
-              placeholder="Escribe el comentario…"
-              value={content}
-              onChange={e => setContent(e.target.value)}
-              autoFocus
-            />
-          </div>
-        </div>
-        <div className="panel-footer">
-          <button type="button" className="btn-secondary" onClick={onCancel}>Cancelar</button>
-          <button type="submit" className="btn-primary" disabled={!content.trim()}>Publicar</button>
         </div>
       </form>
     </div>

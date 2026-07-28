@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { api, Candidate, Election, getBrowserId } from "@/lib/api";
-import CandidateComments from "@/components/CandidateComments";
 
 declare global {
   interface Window {
@@ -136,11 +135,12 @@ export default function ElectionPage({ params }: { params: Promise<{ id: string 
         <section className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
           {candidates?.map(c => (
             <div key={c.id} className={`bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-800 overflow-hidden flex flex-col transition-all ${voted ? 'opacity-70 grayscale-[0.5]' : 'hover:border-primary/50 hover:shadow-xl'}`}>
-              <div className="relative aspect-[4/5] w-full overflow-hidden grayscale-[0.2] hover:grayscale-0 transition-all duration-700">
+              {/* `object-contain` + fondo: la foto se ve entera, sin recortar la cabeza */}
+              <div className="relative aspect-[4/5] w-full overflow-hidden bg-ink-100 dark:bg-ink-800 grayscale-[0.2] hover:grayscale-0 transition-all duration-700">
                 <img 
                   src={c.image_url || 'https://images.unsplash.com/photo-1521791136064-7986c2959d43?q=80&w=2069&auto=format&fit=crop'} 
                   alt={c.name} 
-                  className="rounded-lg h-full w-full object-cover" 
+                  className="h-full w-full object-contain"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink-900/80 via-transparent to-transparent"></div>
                 <div className="absolute bottom-4 left-4 right-4">
@@ -153,24 +153,13 @@ export default function ElectionPage({ params }: { params: Promise<{ id: string 
                   "{c.description || "Comprometido con el desarrollo y la transparencia institucional para el periodo correspondiente."}"
                 </p>
                 
-                <div className="mt-auto space-y-8">
-                  <button 
-                    className={`w-full btn-primary !py-4 tracking-wide text-xs ${loading ? 'opacity-50 cursor-not-allowed' : ''}`} 
-                    disabled={voted || !election?.is_active || loading} 
-                    onClick={() => vote(c.id)}
-                  >
-                    {loading ? 'Procesando...' : voted ? 'Voto Registrado' : 'Emitir Voto'}
-                  </button>
-
-                  <div className="pt-6">
-                    <h4 className="text-xs font-bold text-ink-400 dark:text-ink-500 mb-4 tracking-[0.08em] flex items-center gap-2">
-                      <div className="h-px flex-grow bg-ink-100 dark:bg-ink-800"></div>
-                      Opiniones Ciudadanas
-                      <div className="h-px flex-grow bg-ink-100 dark:bg-ink-800"></div>
-                    </h4>
-                    <CandidateComments candidateId={c.id} />
-                  </div>
-                </div>
+                <button
+                  className={`mt-auto w-full btn-primary !py-4 tracking-wide text-xs ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  disabled={voted || !election?.is_active || loading}
+                  onClick={() => vote(c.id)}
+                >
+                  {loading ? 'Procesando...' : voted ? 'Voto Registrado' : 'Emitir Voto'}
+                </button>
               </div>
             </div>
           ))}

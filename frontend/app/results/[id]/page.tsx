@@ -78,8 +78,9 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
           </p>
         </div>
 
+        {/* Misma altura de portada que en la página de votación */}
         {election?.banner_url && !isMinimal && (
-          <div className="rounded-xl w-full h-[450px] bg-ink-50 dark:bg-ink-800 mb-20 overflow-hidden border border-ink-100 dark:border-ink-700 shadow-xl">
+          <div className="rounded-xl w-full h-[200px] sm:h-[260px] md:h-[320px] bg-ink-50 dark:bg-ink-800 mb-20 overflow-hidden border border-ink-100 dark:border-ink-700 shadow-xl">
             <img src={getImageUrl(election.banner_url)} alt="Portada" className="rounded-lg w-full h-full object-cover" />
           </div>
         )}
@@ -101,7 +102,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                 <div className="flex justify-between items-end mb-6">
                   <div className="flex items-center gap-6">
                     <div className="h-16 w-16 bg-ink-50 dark:bg-ink-800 overflow-hidden border border-ink-100 dark:border-ink-700 shadow-sm">
-                      <img src={getImageUrl(r.image_url)} alt={r.name} className="rounded-lg w-full h-full object-cover" />
+                      <img src={getImageUrl(r.image_url)} alt={r.name} className="w-full h-full object-contain" />
                     </div>
                     <div>
                       <span className="mb-1 flex items-center gap-2 text-xs font-semibold tracking-[0.1em] text-brand-600 dark:text-brand-400">

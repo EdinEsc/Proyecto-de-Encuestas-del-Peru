@@ -172,14 +172,8 @@ GET  /elections/:id
 GET  /elections/:id/candidates
 POST /vote
 GET  /results/:election_id
-POST /comments
-GET  /candidates/:candidate_id/comments?limit=20&offset=0
 GET  /regions
 ```
-
-`GET /candidates/:candidate_id/comments` responde `{ "items": [...], "total": N }`.
-`limit` por defecto 20, máximo 100. La tarjeta de candidato pide `?limit=1` para
-el contador y la vista previa; el panel de opiniones pagina de 20 en 20.
 
 ## Endpoints admin
 
@@ -272,7 +266,6 @@ curl -X POST http://localhost:8080/comments \
 - Índices únicos en PostgreSQL para evitar votos duplicados.
 - Captura de IP desde `X-Forwarded-For`, `X-Real-IP` o `ClientIP`.
 - reCAPTCHA opcional.
-- Comentarios sin límite de frecuencia: se puede comentar las veces necesarias.
 - CORS restringido por `FRONTEND_ORIGIN`.
 
 ## reCAPTCHA
@@ -330,7 +323,7 @@ Para producción se recomienda agregar un endpoint de upload firmado.
 4. Configura `FRONTEND_ORIGIN` con el dominio real.
 5. Activa reCAPTCHA.
 6. Coloca el backend detrás de proxy configurado correctamente para preservar IP real.
-7. Considera protección adicional antifraude: fingerprinting, rate-limit distribuido, auditoría y moderación de comentarios.
+7. Considera protección adicional antifraude: fingerprinting, rate-limit distribuido y auditoría.
 
 ## Limitación del voto anónimo
 

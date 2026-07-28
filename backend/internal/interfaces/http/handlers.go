@@ -18,10 +18,8 @@ type Handler struct {
 	Elections  domain.ElectionRepository
 	Candidates domain.CandidateRepository
 	Votes      domain.VoteRepository
-	Comments   domain.CommentRepository
 	Catalog    domain.CatalogRepository
 	VoteUC     usecases.VoteUsecase
-	CommentUC  usecases.CommentUsecase
 	AdminUC    usecases.AdminUsecase
 }
 
@@ -99,20 +97,6 @@ func (h Handler) Results(c *gin.Context) {
 		total += it.Votes
 	}
 	c.JSON(200, gin.H{"election_title": electionTitle, "total_votes": total, "ranking": items})
-}
-
-func (h Handler) Comment(c *gin.Context) {
-	var input usecases.CommentInput
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-	comment, err := h.CommentUC.Comment(input, RealIP(c))
-	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(201, comment)
 }
 
 func (h Handler) ListRegions(c *gin.Context) {
@@ -302,39 +286,6 @@ func (h Handler) DeleteCandidate(c *gin.Context) {
 		return
 	}
 	c.Status(http.StatusNoContent)
-}
-
-/*
-Paginado: la tarjeta de candidato solo pide ?limit=1 para la vista previa y el
-contador, y el panel de opiniones va trayendo páginas. Antes se devolvían hasta
-100 comentarios por candidato en la carga inicial de la elección.
-*/
-func (h Handler) ListComments(c *gin.Context) {
-	candidateID := c.Param("candidate_id")
-
-	limit := queryInt(c, "limit", 20)
-	if limit < 1 {
-		limit = 1
-	}
-	if limit > 100 {
-		limit = 100
-	}
-	offset := queryInt(c, "offset", 0)
-	if offset < 0 {
-		offset = 0
-	}
-
-	list, err := h.Comments.ListByCandidate(candidateID, limit, offset)
-	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
-		return
-	}
-	total, err := h.Comments.CountByCandidate(candidateID)
-	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(200, gin.H{"items": list, "total": total})
 }
 
 func queryInt(c *gin.Context, key string, fallback int) int {

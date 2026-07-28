@@ -66,22 +66,3 @@ func (u VoteUsecase) Vote(input VoteInput, ip string) (*domain.Vote, error) {
 		BrowserID:   browserID,
 	})
 }
-
-type CommentUsecase struct {
-	Comments   domain.CommentRepository
-	Candidates domain.CandidateRepository
-}
-
-type CommentInput struct {
-	CandidateID string `json:"candidate_id" binding:"required"`
-	Content     string `json:"content" binding:"required,max=500"`
-}
-
-func (u CommentUsecase) Comment(input CommentInput, ip string) (*domain.Comment, error) {
-	_, err := u.Candidates.GetByID(input.CandidateID)
-	if err != nil {
-		return nil, err
-	}
-	// Sin límite de frecuencia: se puede comentar cuantas veces haga falta.
-	return u.Comments.Create(domain.Comment{CandidateID: input.CandidateID, Content: strings.TrimSpace(input.Content), IPAddress: ip})
-}
